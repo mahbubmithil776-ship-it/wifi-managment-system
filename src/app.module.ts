@@ -14,13 +14,16 @@ import { AuthModule } from './auth/auth.module';
     ScheduleModule.forRoot(),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres',
-      password: 'mithil123',
-      database: 'wifi_bd',
+      host: process.env.DB_HOST || 'localhost',
+      port: parseInt(process.env.DB_PORT || '5432'),
+      username: process.env.DB_USERNAME || 'postgres',
+      password: process.env.DB_PASSWORD || 'mithil123',
+      database: process.env.DB_DATABASE || 'wifi_bd',
       entities: [User, Package, Billing, Complaint],
       synchronize: true,
+      ssl: process.env.DB_HOST !== 'localhost' 
+        ? { rejectUnauthorized: false } 
+        : false,
     }),
     UsersModule,
     PackagesModule,
