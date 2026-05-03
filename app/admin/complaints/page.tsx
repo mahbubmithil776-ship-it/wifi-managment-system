@@ -11,6 +11,7 @@ export default function AdminComplaints() {
   const [filter, setFilter] = useState<string>('all');
   const [expanded, setExpanded] = useState<number | null>(null);
   const [pendingCount, setPendingCount] = useState(0);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -102,25 +103,32 @@ export default function AdminComplaints() {
         <div className="nav-inner">
           <div className="logo">Sanaf<span className="logo-accent">ISP</span>.net</div>
           <div className="nav-links">
-            <a href="/admin" className={'nav-link admin' + (pathname === '/admin' ? ' active' : '')}>
-              Admin Home
-            </a>
-            <a href="/admin/users" className={'nav-link admin' + (pathname === '/admin/users' ? ' active' : '')}>
-              Manage Users
-            </a>
+            <a href="/admin" className={'nav-link admin' + (pathname === '/admin' ? ' active' : '')}>Admin Home</a>
+            <a href="/admin/users" className={'nav-link admin' + (pathname === '/admin/users' ? ' active' : '')}>Manage Users</a>
             <a href="/admin/complaints" className={'nav-link admin' + (pathname === '/admin/complaints' ? ' active' : '')}>
               Customer Complaints
               {pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
             </a>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="logout-icon">⏻</span> Logout
-          </button>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <button className="logout-btn" onClick={handleLogout}>
+              <span className="logout-icon">⏻</span> Logout
+            </button>
+            <button className="hamburger" onClick={() => setMenuOpen(v => !v)}>
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
+        {menuOpen && (
+          <div className="mobile-menu">
+            <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
+            <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
+            <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+          </div>
+        )}
       </nav>
 
       <div className="page">
-
         <div className="page-header">
           <div className="page-label">🛠️ Admin Panel</div>
           <div className="page-title">Customer Complaints</div>
@@ -195,15 +203,8 @@ export default function AdminComplaints() {
                   return (
                     <React.Fragment key={c.id}>
                       <tr className={rowClass}>
-
                         <td className="td-num">{index + 1}</td>
-
-                        <td>
-                          <span className="ticket-id-badge">
-                            {c.ticketId || '#' + c.id}
-                          </span>
-                        </td>
-
+                        <td><span className="ticket-id-badge">{c.ticketId || '#' + c.id}</span></td>
                         <td>
                           <div className="customer-cell">
                             <div className="customer-name">{c.name || c.user?.name || '—'}</div>
@@ -211,92 +212,49 @@ export default function AdminComplaints() {
                             {c.area && <div className="customer-area">📍 {c.area}</div>}
                           </div>
                         </td>
-
-                        <td>
-                          <span className="type-badge">
-                            {TYPE_ICON[c.type] || '📋'} {c.type || c.subject || '—'}
-                          </span>
-                        </td>
-
+                        <td><span className="type-badge">{TYPE_ICON[c.type] || '📋'} {c.type || c.subject || '—'}</span></td>
                         <td className="td-desc">
-                          <span
-                            className="desc-text"
-                            title={c.description}
-                            onClick={() => setExpanded(isExpanded ? null : c.id)}
-                            style={{ cursor: 'pointer' }}
-                          >
-                            {isExpanded
-                              ? c.description
-                              : c.description?.length > 60
-                                ? c.description.slice(0, 60) + '…'
-                                : c.description || '—'}
+                          <span className="desc-text" title={c.description} onClick={() => setExpanded(isExpanded ? null : c.id)} style={{ cursor: 'pointer' }}>
+                            {isExpanded ? c.description : c.description?.length > 60 ? c.description.slice(0, 60) + '…' : c.description || '—'}
                           </span>
                           {c.description?.length > 60 && (
-                            <span
-                              className="expand-btn"
-                              onClick={() => setExpanded(isExpanded ? null : c.id)}
-                            >
+                            <span className="expand-btn" onClick={() => setExpanded(isExpanded ? null : c.id)}>
                               {isExpanded ? ' less' : ' more'}
                             </span>
                           )}
                         </td>
-
                         <td>
                           <span className="priority-pill" style={{ background: pStyle.bg, color: pStyle.color }}>
                             {c.priority === 'critical' ? '🔴' : c.priority === 'urgent' ? '🟡' : '🟢'} {pStyle.label}
                           </span>
                         </td>
-
-                        <td>
-                          <span className={statusClass}>
-                            <span className="badge-dot" />
-                            {c.status || 'Pending'}
-                          </span>
-                        </td>
-
+                        <td><span className={statusClass}><span className="badge-dot" />{c.status || 'Pending'}</span></td>
                         <td className="td-muted td-date">{dateStr}</td>
-
                         <td>
                           <div className="action-btns">
                             {c.status?.toLowerCase() === 'resolved' ? (
                               <span className="resolved-label">✓ Resolved</span>
                             ) : (
-                              <button
-                                className="btn-resolve"
-                                onClick={() => handleResolve(c.id)}
-                                disabled={resolving === c.id}
-                              >
+                              <button className="btn-resolve" onClick={() => handleResolve(c.id)} disabled={resolving === c.id}>
                                 {resolving === c.id ? '...' : '✔ Resolve'}
                               </button>
                             )}
                             {c.phone && (
-                              <a
-                                href={buildWhatsAppLink(c)}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="btn-contact"
-                                title="Reply on WhatsApp"
-                              >
-                                💬
-                              </a>
+                              <a href={buildWhatsAppLink(c)} target="_blank" rel="noopener noreferrer" className="btn-contact" title="Reply on WhatsApp">💬</a>
                             )}
                           </div>
                         </td>
-
                       </tr>
                     </React.Fragment>
                   );
                 })}
                 {filtered.length === 0 && (
-                  <tr>
-                    <td colSpan={9} className="td-empty">No tickets found</td>
-                  </tr>
+                  <tr><td colSpan={9} className="td-empty">No tickets found</td></tr>
                 )}
               </tbody>
             </table>
           </div>
         </div>
-
       </div>
     </>
   );
@@ -325,6 +283,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .logout-btn{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:6px;transition:all .2s}
 .logout-btn:hover{background:#dc2626;color:#fff}
 .logout-icon{font-size:14px}
+.hamburger{display:none;background:var(--green-light);border:1.5px solid rgba(15,110,86,0.2);border-radius:10px;padding:7px 12px;font-size:18px;cursor:pointer;color:var(--green)}
+.mobile-menu{background:#fff;border-top:1px solid #e0ede8;padding:12px 20px;display:flex;flex-direction:column;gap:4px}
+.mobile-link{display:block;padding:12px 16px;font-size:14px;font-weight:700;color:var(--green);text-decoration:none;border-radius:10px;transition:background .2s}
+.mobile-link:hover{background:var(--green-light)}
 .page{max-width:1200px;margin:0 auto;padding:48px 24px}
 .page-header{margin-bottom:32px}
 .page-label{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
@@ -378,5 +340,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .resolved-label{font-size:11px;font-weight:700;color:#16a34a;background:#dcfce7;padding:6px 12px;border-radius:20px;white-space:nowrap}
 .btn-contact{width:30px;height:30px;border-radius:50%;background:#e7f7ef;border:1.5px solid #c0e6d8;display:flex;align-items:center;justify-content:center;font-size:14px;text-decoration:none;transition:all .2s;flex-shrink:0}
 .btn-contact:hover{background:var(--green-light);border-color:var(--green);transform:scale(1.1)}
-@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.nav-links{display:none}.page{padding:24px 16px}}
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+  .hamburger{display:block}
+  .page{padding:24px 16px}
+}
 `;

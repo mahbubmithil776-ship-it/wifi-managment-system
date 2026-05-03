@@ -15,6 +15,7 @@ function BillingsContent() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [successMsg, setSuccessMsg] = useState('');
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const loadData = async () => {
     try {
@@ -107,10 +108,23 @@ function BillingsContent() {
             <a href="/dashboard/complaints" className={`nav-link ${pathname === '/dashboard/complaints' ? 'active' : ''}`}>Complaints</a>
             <a href="/dashboard/profile" className={`nav-link ${pathname === '/dashboard/profile' ? 'active' : ''}`}>Profile</a>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="logout-icon">⏻</span> Logout
-          </button>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <button className="logout-btn" onClick={handleLogout}>
+              <span className="logout-icon">⏻</span> Logout
+            </button>
+            <button className="hamburger" onClick={() => setMenuOpen(v => !v)}>
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
+        {menuOpen && (
+          <div className="mobile-menu">
+            <a href="/dashboard" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Dashboard</a>
+            <a href="/dashboard/billings" className="mobile-link" onClick={() => setMenuOpen(false)}>💳 Billings</a>
+            <a href="/dashboard/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>🎧 Complaints</a>
+            <a href="/dashboard/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>👤 Profile</a>
+          </div>
+        )}
       </nav>
 
       <div className="page">
@@ -266,6 +280,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .logout-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,0.25);transition:all .2s}
 .logout-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(220,38,38,0.35)}
 .logout-icon{font-size:13px}
+.hamburger{display:none;background:var(--green-light);border:1.5px solid rgba(15,110,86,0.2);border-radius:10px;padding:7px 12px;font-size:18px;cursor:pointer;color:var(--green)}
+.mobile-menu{background:#fff;border-top:1px solid #e0ede8;padding:12px 20px;display:flex;flex-direction:column;gap:4px}
+.mobile-link{display:block;padding:12px 16px;font-size:14px;font-weight:700;color:var(--green);text-decoration:none;border-radius:10px;transition:background .2s}
+.mobile-link:hover{background:var(--green-light)}
 .page{max-width:1000px;margin:0 auto;padding:48px 24px}
 .page-header{margin-bottom:36px}
 .page-label{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
@@ -330,5 +348,10 @@ tbody td{padding:16px 20px;font-size:13px;font-weight:500}
 .month-cell{font-weight:700;color:#111}
 .empty{text-align:center;padding:48px;color:#bbb;font-size:13px}
 .empty-icon{font-size:40px;margin-bottom:12px}
-@media(max-width:768px){.cards{grid-template-columns:1fr}.due-banner{flex-direction:column;text-align:center}.nav-links{display:none}}
+@media(max-width:768px){
+  .cards{grid-template-columns:1fr}
+  .due-banner{flex-direction:column;text-align:center}
+  .nav-links{display:none}
+  .hamburger{display:block}
+}
 `;

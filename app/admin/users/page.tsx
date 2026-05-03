@@ -31,6 +31,7 @@ export default function AdminUsersPage() {
   const [editUser, setEditUser] = useState<User | null>(null);
   const [form, setForm] = useState(emptyForm);
   const [submitting, setSubmitting] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -253,10 +254,22 @@ export default function AdminUsersPage() {
             <a href="/admin/users" className={`nav-link admin ${pathname === '/admin/users' ? 'active' : ''}`}>Manage Users</a>
             <a href="/admin/complaints" className={`nav-link admin ${pathname === '/admin/complaints' ? 'active' : ''}`}>Complaints</a>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="logout-icon">⏻</span> Logout
-          </button>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <button className="logout-btn" onClick={handleLogout}>
+              <span className="logout-icon">⏻</span> Logout
+            </button>
+            <button className="hamburger" onClick={() => setMenuOpen(v => !v)}>
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
+        {menuOpen && (
+          <div className="mobile-menu">
+            <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
+            <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
+            <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+          </div>
+        )}
       </nav>
 
       <div className="page">
@@ -361,10 +374,7 @@ export default function AdminUsersPage() {
 const styles = `
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800;900&display=swap');
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-:root {
-  --green: #0F6E56; --green-dark: #085041; --green-light: #e1f5ee;
-  --gold: #BA7517; --gold-light: #faeeda; --bg: #f4f8f6;
-}
+:root { --green: #0F6E56; --green-dark: #085041; --green-light: #e1f5ee; --gold: #BA7517; --gold-light: #faeeda; --bg: #f4f8f6; }
 body { font-family: 'Sora', sans-serif; background: var(--bg); color: #111; min-height: 100vh; }
 .loading-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; background: var(--bg); gap: 16px; }
 .loading-spinner { width: 36px; height: 36px; border: 3px solid #e0ede8; border-top-color: var(--green); border-radius: 50%; animation: spin 0.8s linear infinite; }
@@ -382,6 +392,10 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: #111; min-
 .logout-btn { background: #fee2e2; color: #dc2626; border: 1.5px solid #fca5a5; border-radius: 20px; padding: 7px 16px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; display: flex; align-items: center; gap: 6px; transition: all .2s; }
 .logout-btn:hover { background: #dc2626; color: #fff; }
 .logout-icon { font-size: 14px; }
+.hamburger{display:none;background:var(--green-light);border:1.5px solid rgba(15,110,86,0.2);border-radius:10px;padding:7px 12px;font-size:18px;cursor:pointer;color:var(--green)}
+.mobile-menu{background:#fff;border-top:1px solid #e0ede8;padding:12px 20px;display:flex;flex-direction:column;gap:4px}
+.mobile-link{display:block;padding:12px 16px;font-size:14px;font-weight:700;color:var(--green);text-decoration:none;border-radius:10px;transition:background .2s}
+.mobile-link:hover{background:var(--green-light)}
 .page { max-width: 1200px; margin: 0 auto; padding: 48px 24px; }
 .page-header { margin-bottom: 32px; }
 .page-label { font-size: 11px; font-weight: 700; color: var(--green); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
@@ -443,5 +457,11 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: #111; min-
 .btn-submit-modal { background: var(--green); color: #fff; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; transition: all .2s; }
 .btn-submit-modal:hover { background: var(--green-dark); }
 .btn-submit-modal:disabled { opacity: .5; cursor: not-allowed; }
-@media (max-width: 768px) { .stats-row { grid-template-columns: repeat(2, 1fr); } .nav-links { display: none; } .page { padding: 24px 16px; } .action-btns { flex-wrap: wrap; } }
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .nav-links { display: none; }
+  .hamburger { display: block; }
+  .page { padding: 24px 16px; }
+  .action-btns { flex-wrap: wrap; }
+}
 `;
