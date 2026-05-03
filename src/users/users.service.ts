@@ -83,7 +83,10 @@ export class UsersService {
   }
  
   async findAll() {
-    return await this.userRepository.find({ relations: ['package'] });
+    return await this.userRepository.find({ 
+      where: { role: 'user' },
+      relations: ['package'] 
+    });
   }
  
   async findOne(id: number): Promise<User> {
@@ -97,7 +100,7 @@ export class UsersService {
  
   async createBilling(userId: number, billingData: any) {
     const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) throw new NotFoundException('ইউজার পাওয়া যায়নি');
+    if (!user) throw new NotFoundException('User not found');
  
     const billing = new Billing();
     billing.month = billingData.month;
