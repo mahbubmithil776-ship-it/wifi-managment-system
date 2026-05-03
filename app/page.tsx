@@ -296,6 +296,39 @@ function useReveal() {
 }
 
 /* ─────────────────────────────────────────
+   MOBILE MENU
+───────────────────────────────────────── */
+function MobileMenu() {
+  const [open, setOpen] = useState(false);
+  const links = [
+    { href: '#packages', label: 'Packages' },
+    { href: '#business', label: 'Business' },
+    { href: '#status', label: 'Network' },
+    { href: '#coverage', label: 'Coverage' },
+    { href: '#app', label: 'App' },
+    { href: '#faq', label: 'FAQ' },
+    { href: '#contact', label: 'Contact' },
+  ];
+  return (
+    <>
+      <button className="hamburger" onClick={() => setOpen(o => !o)} aria-label="Menu">
+        <span className={`ham-line${open ? ' open' : ''}`} />
+        <span className={`ham-line${open ? ' open' : ''}`} />
+        <span className={`ham-line${open ? ' open' : ''}`} />
+      </button>
+      {open && (
+        <div className="mobile-menu" onClick={() => setOpen(false)}>
+          {links.map(l => (
+            <a key={l.href} href={l.href} className="mobile-menu-link">{l.label}</a>
+          ))}
+          <Link href="/login" className="mobile-menu-btn">Login</Link>
+        </div>
+      )}
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────
    MAIN PAGE
 ───────────────────────────────────────── */
 export default function HomePage() {
@@ -329,6 +362,8 @@ export default function HomePage() {
         .reveal.revealed .why-card:nth-child(4),.reveal.revealed .pkg-card:nth-child(4),.reveal.revealed .team-card:nth-child(4){transition-delay:.35s}
         .reveal.revealed .why-card:nth-child(5){transition-delay:.45s}
         .reveal.revealed .why-card:nth-child(6){transition-delay:.55s}
+
+        /* ── NAV ── */
         .isp-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s;padding:0 5vw}
         .isp-nav.scrolled{border-color:#e0ede8;box-shadow:0 4px 24px rgba(15,110,86,.09)}
         .nav-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:68px}
@@ -342,6 +377,18 @@ export default function HomePage() {
         .nav-btn{background:var(--green)!important;color:#fff!important;padding:9px 22px;border-radius:30px;font-size:13px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;transition:background .2s,transform .2s;text-decoration:none;display:inline-block}
         .nav-btn:hover{background:var(--green-dark)!important;transform:translateY(-1px)}
         .nav-btn::after{display:none!important}
+
+        /* ── HAMBURGER ── */
+        .hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;z-index:1100}
+        .ham-line{display:block;width:24px;height:2.5px;background:#111;border-radius:4px;transition:transform .3s,opacity .3s}
+
+        /* ── MOBILE MENU ── */
+        .mobile-menu{display:none;position:fixed;top:58px;left:0;right:0;background:#fff;border-bottom:2px solid #e0ede8;z-index:999;padding:16px 5vw 20px;flex-direction:column;gap:4px;box-shadow:0 8px 32px rgba(0,0,0,.08)}
+        .mobile-menu-link{font-size:15px;font-weight:600;color:#333;text-decoration:none;padding:12px 0;border-bottom:1px solid #f0f0f0;display:block}
+        .mobile-menu-link:last-of-type{border-bottom:none}
+        .mobile-menu-btn{margin-top:12px;background:var(--green);color:#fff;padding:12px 0;border-radius:30px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;display:block}
+
+        /* ── HERO ── */
         .hero{min-height:100vh;background:linear-gradient(160deg,#e8f7f1 0%,#f9fffe 40%,#fffef8 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:68px}
         .hero-orb{position:absolute;border-radius:50%;pointer-events:none}
         .orb1{width:520px;height:520px;background:radial-gradient(circle,rgba(15,110,86,.10) 0%,transparent 70%);top:-80px;right:-60px}
@@ -373,6 +420,8 @@ export default function HomePage() {
         .hero-btns{animation:fadeUp .7s .32s ease both}
         .hero-stats{animation:fadeUp .7s .42s ease both}
         .hero-right{animation:fadeUp .9s .2s ease both}
+
+        /* ── SECTIONS ── */
         .section{max-width:1160px;margin:0 auto;padding:80px 5vw}
         .section-header{text-align:center;margin-bottom:48px}
         .section-label{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
@@ -400,7 +449,7 @@ export default function HomePage() {
         .pkg-divider{border:none;border-top:1px solid #f0f0f0;margin:16px 0}
         .pkg-feature{font-size:12px;color:#555;margin:7px 0;text-align:left;display:flex;align-items:center;gap:7px}
         .pkg-check{color:var(--green);font-weight:800;font-size:13px}
-        .pkg-btn{margin-top:20px;width:100%;padding:11px 0;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;border:2px solid var(--green);color:var(--green);background:transparent;transition:all .25s;text-decoration:none;display:block}
+        .pkg-btn{margin-top:20px;width:100%;padding:11px 0;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;border:2px solid var(--green);color:var(--green);background:transparent;transition:all .25s;text-decoration:none;display:block;text-align:center}
         .pkg-btn:hover,.pkg-card.featured .pkg-btn{background:var(--green);color:#fff}
         .biz-bg{background:linear-gradient(160deg,#0a1f18 0%,#0d2d22 100%)}
         .biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
@@ -564,8 +613,116 @@ export default function HomePage() {
         .float-wa{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 24px rgba(37,211,102,.45);text-decoration:none;transition:transform .25s,box-shadow .25s;animation:waPop .5s 1.5s ease both}
         .float-wa:hover{transform:scale(1.12);box-shadow:0 10px 32px rgba(37,211,102,.6)}
         @keyframes waPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
-        @media(max-width:900px){.hero-content,.app-wrap,.referral-wrap{grid-template-columns:1fr;gap:40px}.hero-right{height:280px}.pkg-grid,.biz-grid,.why-grid,.blog-grid{grid-template-columns:1fr 1fr}.testi-grid{grid-template-columns:1fr}.pkg-card.featured{transform:none}.pkg-card.featured:hover{transform:translateY(-8px)}}
-        @media(max-width:600px){.pkg-grid,.biz-grid,.why-grid,.blog-grid{grid-template-columns:1fr}.nav-links a:not(.nav-btn){display:none}.contact-inner{flex-direction:column;align-items:flex-start}.status-row{flex-direction:column;align-items:flex-start}}
+
+        /* ════════════════════════════════
+           TABLET  (≤ 900px)
+        ════════════════════════════════ */
+        @media(max-width:900px){
+          .hero-content{grid-template-columns:1fr;gap:40px;padding:60px 5vw}
+          .hero-right{height:280px}
+          .app-wrap,.referral-wrap{grid-template-columns:1fr;gap:40px}
+          .pkg-grid,.why-grid,.blog-grid{grid-template-columns:1fr 1fr}
+          .biz-grid{grid-template-columns:1fr}
+          .testi-grid{grid-template-columns:1fr 1fr}
+          .pkg-card.featured{transform:none}
+          .pkg-card.featured:hover{transform:translateY(-8px)}
+          .team-grid{grid-template-columns:1fr 1fr}
+        }
+
+        /* ════════════════════════════════
+           MOBILE  (≤ 600px)
+        ════════════════════════════════ */
+        @media(max-width:600px){
+          /* Nav */
+          .nav-inner{height:58px}
+          .logo{font-size:18px}
+          .nav-links a:not(.nav-btn){display:none}
+          .nav-btn{display:none}
+          .hamburger{display:flex}
+          .mobile-menu{display:flex}
+
+          /* Hero */
+          .hero{padding-top:58px}
+          .hero-content{padding:36px 5vw 52px;gap:28px}
+          .hero-badge{font-size:10px;padding:5px 12px}
+          .hero-title{font-size:28px;letter-spacing:-1px;line-height:1.12}
+          .hero-sub{font-size:13px;margin-bottom:24px}
+          .hero-btns{gap:10px;margin-bottom:32px}
+          .btn-primary,.btn-outline{padding:12px 20px;font-size:13px}
+          .hero-right{height:220px}
+          .stat-num{font-size:20px}
+          .stat-lbl{font-size:10px}
+          .stat-item{padding:14px 8px}
+
+          /* Sections */
+          .section{padding:52px 5vw}
+          .section-title{font-size:22px;letter-spacing:-.5px}
+          .section-header{margin-bottom:32px}
+
+          /* Why us */
+          .why-grid{grid-template-columns:1fr}
+          .why-card{padding:20px 16px}
+
+          /* Packages */
+          .pkg-grid{grid-template-columns:1fr}
+          .pkg-card{padding:24px 18px}
+          .pkg-speed{font-size:44px}
+
+          /* Business */
+          .biz-grid{grid-template-columns:1fr}
+          .biz-speed{font-size:36px}
+
+          /* Status */
+          .status-row{flex-direction:column;align-items:flex-start;gap:8px}
+          .status-banner{flex-wrap:wrap;gap:8px}
+          .status-time{width:100%;margin-left:0;margin-top:4px}
+
+          /* Speed test */
+          .speed-box{padding:32px 20px}
+          .speed-gauge{width:150px;height:150px}
+          .gauge-num{font-size:30px}
+
+          /* Coverage */
+          .coverage-grid{grid-template-columns:1fr 1fr}
+
+          /* App */
+          .app-wrap{grid-template-columns:1fr;gap:32px}
+          .app-mockup{padding:20px}
+          .app-btns{flex-direction:column}
+          .app-store-btn{width:100%;justify-content:center}
+
+          /* Referral */
+          .referral-wrap{grid-template-columns:1fr;gap:28px}
+          .ref-card{padding:24px 16px}
+          .ref-code{font-size:15px;letter-spacing:2px;padding:12px 10px}
+
+          /* Testimonials */
+          .testi-grid{grid-template-columns:1fr}
+
+          /* Blog */
+          .blog-grid{grid-template-columns:1fr}
+
+          /* FAQ */
+          .faq-q{font-size:13px;padding:16px 0}
+
+          /* Team */
+          .team-grid{grid-template-columns:1fr 1fr}
+
+          /* Contact */
+          .contact-inner{padding:52px 5vw;flex-direction:column;align-items:flex-start}
+          .contact-title{font-size:20px}
+          .contact-sub{font-size:13px}
+          .contact-btns{flex-direction:column;width:100%}
+          .btn-wa,.btn-ghost{justify-content:center;text-align:center;width:100%}
+
+          /* Footer */
+          .isp-footer{padding:32px 5vw}
+          .footer-inner{flex-direction:column;align-items:flex-start;gap:12px}
+          .footer-links{gap:16px}
+
+          /* Float WA */
+          .float-wa{bottom:18px;right:16px;width:48px;height:48px;font-size:22px}
+        }
       `}</style>
 
       <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="float-wa" title="Chat on WhatsApp">💬</a>
@@ -583,6 +740,7 @@ export default function HomePage() {
             <a href="#contact">Contact</a>
             <Link href="/login" className="nav-btn">Login</Link>
           </div>
+          <MobileMenu />
         </div>
       </nav>
 
@@ -667,9 +825,7 @@ export default function HomePage() {
                 <div className="biz-price">৳{b.price.toLocaleString()} <span>/ month</span></div>
                 <hr className="biz-divider" />
                 {b.features.map(f => <div key={f} className="biz-feature"><span className="biz-check">✓</span> {f}</div>)}
-                <Link href={`/register?package=${b.name}`} className="biz-btn">
-                  Get a Quote →
-                </Link>
+                <Link href={`/register?package=${b.name}`} className="biz-btn">Get a Quote →</Link>
               </div>
             ))}
           </div>
