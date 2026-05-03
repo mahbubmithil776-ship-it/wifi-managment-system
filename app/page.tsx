@@ -269,7 +269,7 @@ function ReferralSection() {
           <button className="ref-copy-btn" onClick={copy}>{copied ? '✓ Copied!' : 'Copy Code'}</button>
           <div className="ref-share-row">
             <span className="ref-share-lbl">Share via:</span>
-            <a href="https://wa.me/8801736636777" target="_blank" rel="noopener noreferrer" className="ref-share-btn wa">WhatsApp</a>
+            <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="ref-share-btn wa">WhatsApp</a>
             <button className="ref-share-btn fb">Facebook</button>
           </div>
           <div className="ref-earned"><span className="ref-earned-num">৳0</span><span className="ref-earned-lbl">Rewards Earned</span></div>

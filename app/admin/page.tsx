@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState<any>(null);
+  const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
 
@@ -44,10 +45,22 @@ export default function AdminDashboard() {
             <a href="/admin/users" className={`nav-link admin ${pathname === '/admin/users' ? 'active' : ''}`}>Manage Users</a>
             <a href="/admin/complaints" className={`nav-link admin ${pathname === '/admin/complaints' ? 'active' : ''}`}>Complaints</a>
           </div>
-          <button className="logout-btn" onClick={handleLogout}>
-            <span className="logout-icon">⏻</span> Logout
-          </button>
+          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+            <button className="logout-btn" onClick={handleLogout}>
+              <span className="logout-icon">⏻</span> Logout
+            </button>
+            <button className="hamburger" onClick={() => setMenuOpen(v => !v)}>
+              {menuOpen ? '✕' : '☰'}
+            </button>
+          </div>
         </div>
+        {menuOpen && (
+          <div className="mobile-menu">
+            <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
+            <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
+            <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+          </div>
+        )}
       </nav>
 
       <div className="page">
@@ -105,6 +118,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .logout-btn{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:6px;transition:all .2s}
 .logout-btn:hover{background:#dc2626;color:#fff}
 .logout-icon{font-size:14px}
+.hamburger{display:none;background:var(--green-light);border:1.5px solid rgba(15,110,86,0.2);border-radius:10px;padding:7px 12px;font-size:18px;cursor:pointer;color:var(--green)}
+.mobile-menu{background:#fff;border-top:1px solid #e0ede8;padding:12px 20px;display:flex;flex-direction:column;gap:4px}
+.mobile-link{display:block;padding:12px 16px;font-size:14px;font-weight:700;color:var(--green);text-decoration:none;border-radius:10px;transition:background .2s}
+.mobile-link:hover{background:var(--green-light)}
 .page{max-width:1100px;margin:0 auto;padding:48px 24px}
 .page-header{margin-bottom:32px}
 .page-label{font-size:11px;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
@@ -115,5 +132,10 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .stat-icon{font-size:26px}
 .stat-val{font-size:30px;font-weight:900;color:var(--green);letter-spacing:-1px}
 .stat-label{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1px}
-@media(max-width:768px){.stats-row{grid-template-columns:repeat(2,1fr)}.nav-links{display:none}.page{padding:24px 16px}}
+@media(max-width:768px){
+  .stats-row{grid-template-columns:repeat(2,1fr)}
+  .nav-links{display:none}
+  .hamburger{display:block}
+  .page{padding:24px 16px}
+}
 `;
