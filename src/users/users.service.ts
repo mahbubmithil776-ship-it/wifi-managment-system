@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException, OnModuleInit  } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User, UserStatus } from './entities/user.entity';
@@ -11,7 +11,7 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { MikrotikService } from './mikrotik.service';
  
 @Injectable()
-export class UsersService {
+export class UsersService implements OnModuleInit {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
@@ -201,14 +201,18 @@ export class UsersService {
     return await this.userRepository.save(user);
   }
  
-  async resetPassword(userId: number, newPassword: string) {
-    const user = await this.userRepository.findOneBy({ id: userId });
-    if (!user) throw new NotFoundException('User not found');
-    const salt = await bcrypt.genSalt();
-    user.password = await bcrypt.hash(newPassword, salt);
-    await this.userRepository.save(user);
-    return { message: 'Password reset successful' };
-  }
+  async resetPassword(userId: number, currentPassword: string, newPassword: string) {
+  const user = await this.userRepository.findOneBy({ id: userId });
+  if (!user) throw new NotFoundException('User not found');
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) throw new UnauthorizedException('Current password is incorrect');
+
+  const salt = await bcrypt.genSalt();
+  user.password = await bcrypt.hash(newPassword, salt);
+  await this.userRepository.save(user);
+  return { message: 'Password changed successfully' };
+}
  
   @Cron(CronExpression.EVERY_1ST_DAY_OF_MONTH_AT_MIDNIGHT)
   async handleMonthlyBilling() {
@@ -321,4 +325,44 @@ export class UsersService {
  
     return await this.userRepository.save(user);
   }
+
+
+ async onModuleInit() {
+  const adminExists = await this.userRepository.findOne({
+    where: { role: 'admin' }
+  });
+
+  if (!adminExists) {
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash('salim@331', salt);
+    
+    const admin = this.userRepository.create({
+      fullName: 'salim',
+      email: 'salim331@gmail.com',
+      phone: '01700000000',
+      password: hashedPassword,
+      role: 'admin',
+      status: UserStatus.ACTIVE,
+    });
+    
+    await this.userRepository.save(admin);
+    console.log('✅ Admin created: salim331@gmail.com / salim@331');
+  }
+}
+
+
+async changePassword(userId: number, currentPassword: string, newPassword: string) {
+  const user = await this.userRepository.findOneBy({ id: userId });
+  if (!user) throw new NotFoundException('User not found');
+
+  const isMatch = await bcrypt.compare(currentPassword, user.password);
+  if (!isMatch) throw new UnauthorizedException('Current password is incorrect');
+
+  const salt = await bcrypt.genSalt();
+  user.password = await bcrypt.hash(newPassword, salt);
+  await this.userRepository.save(user);
+  
+  return { message: 'Password changed successfully' };
+}
+
 }

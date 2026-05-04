@@ -142,12 +142,20 @@ export class UsersController {
     return await this.usersService.updateComplaintStatus(id, status);
   }
  
-  // password reset
-  @UseGuards(AuthGuard('jwt'))
-  @Patch('reset-password')
-  async reset(@Request() req, @Body('newPassword') newPassword: string) {
-    return await this.usersService.resetPassword(Number(req.user.userId), newPassword);
-  }
+  //user password reset
+ @UseGuards(AuthGuard('jwt'))
+@Patch('reset-password')
+async reset(
+  @Request() req,
+  @Body('currentPassword') currentPassword: string,
+  @Body('newPassword') newPassword: string
+) {
+  return await this.usersService.resetPassword(
+    Number(req.user.userId),
+    currentPassword,
+    newPassword
+  );
+}
  
   //profile picture upload
   @Post('upload-profile-pic/:id')
@@ -222,4 +230,21 @@ async updateUser(
 ) {
   return await this.usersService.updateUser(id, updateData);
 }
+
+
+
+@UseGuards(AuthGuard('jwt'))
+@Patch('change-password')
+async changePassword(
+  @Request() req,
+  @Body() body: { currentPassword: string; newPassword: string }
+) {
+  return this.usersService.changePassword(
+    Number(req.user.userId),
+    body.currentPassword,
+    body.newPassword
+  );
+}
+
+
 }
