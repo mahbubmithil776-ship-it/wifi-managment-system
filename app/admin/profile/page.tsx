@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import api from '../../../services/api';
 import { useRouter } from 'next/navigation';
 
-export default function ProfilePage() {
+export default function AdminProfilePage() {
   const router = useRouter();
   const pathname = usePathname();
   const [user, setUser] = useState<any>(null);
@@ -49,22 +49,22 @@ export default function ProfilePage() {
   };
 
   const handlePasswordReset = async () => {
-  if (!currentPassword.trim()) return alert('Please enter current password');
-  if (!newPassword.trim()) return alert('New password cannot be empty');
-  if (newPassword !== confirmPassword) return alert('Passwords do not match!');
-  setResettingPwd(true);
-  try {
-    await api.patch('/users/reset-password', { currentPassword, newPassword });
-    alert('Password changed successfully!');
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-  } catch {
-    alert('Current password is incorrect!');
-  } finally {
-    setResettingPwd(false);
-  }
-};
+    if (!currentPassword.trim()) return alert('Please enter current password');
+    if (!newPassword.trim()) return alert('New password cannot be empty');
+    if (newPassword !== confirmPassword) return alert('Passwords do not match!');
+    setResettingPwd(true);
+    try {
+      await api.patch('/users/reset-password', { currentPassword, newPassword });
+      alert('Password changed successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch {
+      alert('Current password is incorrect!');
+    } finally {
+      setResettingPwd(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem('token');
@@ -89,14 +89,15 @@ export default function ProfilePage() {
 
       <nav className="nav">
         <div className="nav-inner">
-          <div className="logo">Sanaf<span className="logo-accent">ISP</span>.net</div>
-          <div className="nav-links">
-            <a href="/dashboard" className={`nav-link ${pathname === '/dashboard' ? 'active' : ''}`}>User Dashboard</a>
-            <a href="/dashboard/billings" className={`nav-link ${pathname === '/dashboard/billings' ? 'active' : ''}`}>Billings</a>
-            <a href="/dashboard/complaints" className={`nav-link ${pathname === '/dashboard/complaints' ? 'active' : ''}`}>Complaints</a>
-            <a href="/dashboard/profile" className={`nav-link ${pathname === '/dashboard/profile' ? 'active' : ''}`}>Profile</a>
+          <div className="logo">Sanaf<span className="logo-accent">ISP</span>.net<span className="admin-badge">Admin</span>
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+          <div className="nav-links">
+            <a href="/admin" className={`nav-link admin ${pathname === '/admin' ? 'active' : ''}`}>Admin Home</a>
+            <a href="/admin/users" className={`nav-link admin ${pathname === '/admin/users' ? 'active' : ''}`}>Manage Users</a>
+            <a href="/admin/complaints" className={`nav-link admin ${pathname === '/admin/complaints' ? 'active' : ''}`}>Complaints</a>
+            <a href="/admin/profile" className={`nav-link admin ${pathname === '/admin/profile' ? 'active' : ''}`}>Profile</a>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button className="logout-btn" onClick={handleLogout}>
               <span className="logout-icon">⏻</span> Logout
             </button>
@@ -107,22 +108,22 @@ export default function ProfilePage() {
         </div>
         {menuOpen && (
           <div className="mobile-menu">
-            <a href="/dashboard" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Dashboard</a>
-            <a href="/dashboard/billings" className="mobile-link" onClick={() => setMenuOpen(false)}>💳 Billings</a>
-            <a href="/dashboard/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>🎧 Complaints</a>
-            <a href="/dashboard/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>👤 Profile</a>
+            <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
+            <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
+            <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+            <a href="/admin/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>👤 Profile</a>
           </div>
         )}
       </nav>
 
       <div className="page">
         <div className="page-header">
-          <div className="page-label">👤 My Account</div>
+          <div className="page-label">🛠️ Admin Panel</div>
           <div className="page-title">Account Settings</div>
-          <div className="page-sub">{user?.email || '—'} — Manage your profile</div>
+          <div className="page-sub">{user?.email || '—'} — Admin profile management</div>
         </div>
 
-        <div className="section-title">📋 Profile Information</div>
+        <div className="section-title">📋 Admin Information</div>
         <div className="info-card">
           <div className="info-grid">
             <div className="info-item">
@@ -138,8 +139,12 @@ export default function ProfilePage() {
               <div className="info-val">{user?.phone || '—'}</div>
             </div>
             <div className="info-item">
-              <div className="info-label">Package</div>
-              <div className="info-val">{user?.package?.name || 'No package assigned'}</div>
+              <div className="info-label">Role</div>
+              <div className="info-val">
+                <span className="badge badge-admin">
+                  <span className="badge-dot" /> Administrator
+                </span>
+              </div>
             </div>
             <div className="info-item">
               <div className="info-label">Account Status</div>
@@ -170,7 +175,7 @@ export default function ProfilePage() {
                 <img src={`/${user.profilePic}`} alt="Profile" className="avatar-img" />
               ) : (
                 <div className="avatar-placeholder">
-                  <span className="avatar-icon">👤</span>
+                  <span className="avatar-icon">🛡️</span>
                 </div>
               )}
             </div>
@@ -256,15 +261,16 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .loading-text{font-size:13px;font-weight:700;color:var(--green)}
 .nav{background:rgba(255,255,255,0.95);backdrop-filter:blur(12px);border-bottom:1px solid #e0ede8;padding:0 5vw;position:sticky;top:0;z-index:100;box-shadow:0 4px 24px rgba(15,110,86,.07)}
 .nav-inner{max-width:1160px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;height:64px}
-.logo{font-size:20px;font-weight:900;color:var(--green);letter-spacing:-1px}
-.logo-accent{color:var(--gold)}
-.nav-links{display:flex;align-items:center;gap:22px}
+.logo { font-size: 20px; font-weight: 900; color: var(--green); letter-spacing: -1px; }
+.logo-accent { color: var(--gold); }
+.admin-badge{font-size:10px;font-weight:700;background:var(--gold-light);color:var(--gold);border:1px solid #e8c97a;padding:2px 8px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;margin-left:6px;vertical-align:middle;position:relative;top:-1px}.nav-links{display:flex;align-items:center;gap:22px}
 .nav-link{font-size:13px;font-weight:600;color:#555;text-decoration:none;padding-bottom:2px;border-bottom:2px solid transparent;transition:color .2s,border-color .2s}
 .nav-link:hover{color:var(--green)}
 .nav-link.active{color:var(--green);border-bottom-color:var(--green)}
-.logout-btn{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:linear-gradient(135deg,#dc2626,#b91c1c);border:none;border-radius:20px;padding:8px 18px;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 4px 12px rgba(220,38,38,0.25);transition:all .2s}
-.logout-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(220,38,38,0.35)}
-.logout-icon{font-size:13px}
+.nav-link.admin{color:var(--green);font-size:13px}
+.logout-btn{background:#fee2e2;color:#dc2626;border:1.5px solid #fca5a5;border-radius:20px;padding:7px 16px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:flex;align-items:center;gap:6px;transition:all .2s}
+.logout-btn:hover{background:#dc2626;color:#fff}
+.logout-icon{font-size:14px}
 .hamburger{display:none;background:var(--green-light);border:1.5px solid rgba(15,110,86,0.2);border-radius:10px;padding:7px 12px;font-size:18px;cursor:pointer;color:var(--green)}
 .mobile-menu{background:#fff;border-top:1px solid #e0ede8;padding:12px 20px;display:flex;flex-direction:column;gap:4px}
 .mobile-link{display:block;padding:12px 16px;font-size:14px;font-weight:700;color:var(--green);text-decoration:none;border-radius:10px;transition:background .2s}
@@ -283,13 +289,14 @@ body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;min-height:10
 .badge-active{background:#dcfce7;color:#16a34a}
 .badge-inactive{background:#fee2e2;color:#dc2626}
 .badge-pending{background:var(--gold-light);color:var(--gold)}
+.badge-admin{background:var(--gold-light);color:var(--gold)}
 .badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor}
 .settings-card{background:#fff;border-radius:20px;border:1.5px solid #e0ede8;overflow:hidden;box-shadow:0 2px 12px rgba(15,110,86,.05)}
 .upload-area{display:flex;align-items:center;gap:28px;padding:28px}
-.avatar-preview{flex-shrink:0;width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid var(--green-light);box-shadow:0 4px 16px rgba(15,110,86,.12)}
+.avatar-preview{flex-shrink:0;width:88px;height:88px;border-radius:50%;overflow:hidden;border:3px solid var(--gold-light);box-shadow:0 4px 16px rgba(186,117,23,.15)}
 .avatar-img{width:100%;height:100%;object-fit:cover}
-.avatar-placeholder{width:100%;height:100%;background:var(--green-light);display:flex;align-items:center;justify-content:center}
-.avatar-icon{font-size:34px;opacity:.5}
+.avatar-placeholder{width:100%;height:100%;background:var(--gold-light);display:flex;align-items:center;justify-content:center}
+.avatar-icon{font-size:34px;opacity:.6}
 .upload-info{flex:1}
 .upload-title{font-size:14px;font-weight:700;color:#111;margin-bottom:4px}
 .upload-desc{font-size:12px;color:#999;margin-bottom:14px}

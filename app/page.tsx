@@ -1,6 +1,6 @@
 'use client';
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
 /* ─────────────────────────────────────────
    HELPER — AUTO INITIALS
@@ -49,36 +49,9 @@ const WHY_US = [
 ];
 
 const BLOG_POSTS = [
-  {
-    tag: 'Tips',
-    title: 'How to Get the Best WiFi Coverage in Your Home',
-    date: 'Apr 22, 2026',
-    read: '4 min read',
-    color: '#0F6E56',
-    bg: '#e1f5ee',
-    emoji: '💡',
-    href: 'https://www.tp-link.com/us/support/faq/468/',
-  },
-  {
-    tag: 'News',
-    title: 'SanafISP Expands Coverage to Gazipur & Savar in Q3 2026',
-    date: 'Apr 15, 2026',
-    read: '2 min read',
-    color: '#185FA5',
-    bg: '#e6f1fb',
-    emoji: '📡',
-    href: 'https://blog.apnic.net/2025/11/03/bangladeshs-internet-transformation-from-satellite-shadows-to-digital-highways/',
-  },
-  {
-    tag: 'Guide',
-    title: 'WFH Setup: Choosing the Right Internet Plan for Remote Work',
-    date: 'Apr 8, 2026',
-    read: '6 min read',
-    color: '#BA7517',
-    bg: '#faeeda',
-    emoji: '🖥️',
-    href: 'https://broadbandnow.com/guides/internet-speed-work-from-home',
-  },
+  { tag: 'Tips', title: 'How to Get the Best WiFi Coverage in Your Home', date: 'Apr 22, 2026', read: '4 min read', color: '#0F6E56', bg: '#e1f5ee', emoji: '💡', href: 'https://www.tp-link.com/us/support/faq/468/' },
+  { tag: 'News', title: 'SanafISP Expands Coverage to Gazipur & Savar in Q3 2026', date: 'Apr 15, 2026', read: '2 min read', color: '#185FA5', bg: '#e6f1fb', emoji: '📡', href: 'https://blog.apnic.net/2025/11/03/bangladeshs-internet-transformation-from-satellite-shadows-to-digital-highways/' },
+  { tag: 'Guide', title: 'WFH Setup: Choosing the Right Internet Plan for Remote Work', date: 'Apr 8, 2026', read: '6 min read', color: '#BA7517', bg: '#faeeda', emoji: '🖥️', href: 'https://broadbandnow.com/guides/internet-speed-work-from-home' },
 ];
 
 const AREAS = [
@@ -105,7 +78,7 @@ const FAQS = [
 ];
 
 const TEAM = [
-  { name: 'Shadman Salim', role: 'Founder & CEO', desc: '10+ years of telecom experience. Local entrepreneur.', bg: '#e1f5ee', color: '#0F6E56' },
+  { name: 'Salim Ahmed', role: 'Founder & CEO', desc: '10+ years of telecom experience. Local entrepreneur.', bg: '#e1f5ee', color: '#0F6E56' },
   { name: 'Maruf Ahmead', role: 'Customer Care Manager', desc: 'Committed to ensuring customer satisfaction.', bg: '#faeeda', color: '#BA7517' },
   { name: 'Masud Hossain', role: 'Network Engineer', desc: 'Expert in fiber infrastructure construction and maintenance.', bg: '#e6f1fb', color: '#185FA5' },
   { name: 'Rakibul Islam', role: 'Technical Support Lead', desc: 'Guaranteed problem resolution within 48 hours.', bg: '#fcebeb', color: '#A32D2D' },
@@ -126,6 +99,15 @@ function NetworkCanvas() {
     const nodes: Node[] = [];
     for (let i = 0; i < 18; i++) nodes.push({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, r: Math.random() * 3 + 3 });
     nodes.push({ x: W / 2, y: H / 2, vx: 0, vy: 0, r: 12, hub: true });
+    // Packet animation
+    type Packet = { fromIdx: number; toIdx: number; t: number; speed: number };
+    const packets: Packet[] = [];
+    setInterval(() => {
+      if (packets.length < 8) {
+        const from = Math.floor(Math.random() * (nodes.length - 1));
+        packets.push({ fromIdx: from, toIdx: nodes.length - 1, t: 0, speed: 0.012 + Math.random() * 0.01 });
+      }
+    }, 600);
     let raf: number;
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
@@ -140,10 +122,27 @@ function NetworkCanvas() {
           if (d2 < 120) { ctx.beginPath(); ctx.moveTo(n.x, n.y); ctx.lineTo(m.x, m.y); ctx.strokeStyle = `rgba(15,110,86,${0.12 * (1 - d2 / 120)})`; ctx.lineWidth = 0.5; ctx.stroke(); }
         }
       }
+      // Draw packets
+      for (let i = packets.length - 1; i >= 0; i--) {
+        const p = packets[i];
+        p.t += p.speed;
+        if (p.t >= 1) { packets.splice(i, 1); continue; }
+        const from = nodes[p.fromIdx]; const to = nodes[p.toIdx];
+        const px = from.x + (to.x - from.x) * p.t;
+        const py = from.y + (to.y - from.y) * p.t;
+        ctx.beginPath(); ctx.arc(px, py, 3, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(29,184,126,${1 - p.t})`; ctx.fill();
+        // Glow
+        ctx.beginPath(); ctx.arc(px, py, 6, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(29,184,126,${0.15 * (1 - p.t)})`; ctx.fill();
+      }
       for (const n of nodes) {
         ctx.beginPath(); ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
         ctx.fillStyle = n.hub ? '#0F6E56' : 'rgba(15,110,86,0.55)'; ctx.fill();
-        if (n.hub) { ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 6, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(15,110,86,0.2)'; ctx.lineWidth = 2; ctx.stroke(); }
+        if (n.hub) {
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 6, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(15,110,86,0.2)'; ctx.lineWidth = 2; ctx.stroke();
+          ctx.beginPath(); ctx.arc(n.x, n.y, n.r + 14, 0, Math.PI * 2); ctx.strokeStyle = 'rgba(15,110,86,0.08)'; ctx.lineWidth = 1.5; ctx.stroke();
+        }
       }
       for (let i = 0; i < nodes.length - 1; i++) {
         const n = nodes[i]; n.x += n.vx; n.y += n.vy;
@@ -154,6 +153,80 @@ function NetworkCanvas() {
     draw(); return () => cancelAnimationFrame(raf);
   }, []);
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
+/* ─────────────────────────────────────────
+   COUNT UP HOOK
+───────────────────────────────────────── */
+function useCountUp(target: number, suffix: string, duration = 1800) {
+  const [val, setVal] = useState('0');
+  const ref = useRef<HTMLDivElement>(null);
+  const started = useRef(false);
+  useEffect(() => {
+    const el = ref.current; if (!el) return;
+    const obs = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting && !started.current) {
+        started.current = true;
+        const start = Date.now();
+        const tick = () => {
+          const p = Math.min((Date.now() - start) / duration, 1);
+          const ease = 1 - Math.pow(1 - p, 3);
+          const cur = Math.round(ease * target);
+          setVal(cur + suffix);
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+        obs.disconnect();
+      }
+    }, { threshold: 0.5 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [target, suffix, duration]);
+  return { ref, val };
+}
+
+/* ─────────────────────────────────────────
+   SWIPE CAROUSEL
+───────────────────────────────────────── */
+function Carousel({ children, className }: { children: React.ReactNode[]; className?: string }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [idx, setIdx] = useState(0);
+  const total = children.length;
+  const startX = useRef(0);
+  const isDragging = useRef(false);
+
+  const goTo = useCallback((i: number) => {
+    const clamped = Math.max(0, Math.min(i, total - 1));
+    setIdx(clamped);
+    if (trackRef.current) {
+      trackRef.current.style.transform = `translateX(calc(-${clamped * 100}% - ${clamped * 16}px))`;
+    }
+  }, [total]);
+
+  const onTouchStart = (e: React.TouchEvent) => { startX.current = e.touches[0].clientX; isDragging.current = true; };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const diff = startX.current - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 40) goTo(diff > 0 ? idx + 1 : idx - 1);
+    isDragging.current = false;
+  };
+
+  return (
+    <div className={`carousel-wrap ${className || ''}`}>
+      <div className="carousel-outer" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+        <div className="carousel-track" ref={trackRef}>
+          {children.map((child, i) => (
+            <div key={i} className="carousel-slide">{child}</div>
+          ))}
+        </div>
+      </div>
+      <div className="carousel-dots">
+        {children.map((_, i) => (
+          <button key={i} className={`carousel-dot${i === idx ? ' active' : ''}`} onClick={() => goTo(i)} />
+        ))}
+      </div>
+    </div>
+  );
 }
 
 /* ─────────────────────────────────────────
@@ -186,6 +259,7 @@ function SpeedTest() {
         <svg className="gauge-svg" viewBox="0 0 180 180">
           <circle cx="90" cy="90" r="75" fill="none" stroke="#e8f0ed" strokeWidth="10" strokeDasharray="471 471" strokeDashoffset="-80" strokeLinecap="round" />
           <circle cx="90" cy="90" r="75" fill="none" stroke="#0F6E56" strokeWidth="10" strokeDasharray={`${dashVal} 471`} strokeDashoffset="-80" strokeLinecap="round" style={{ transition: 'stroke-dasharray 0.5s ease' }} />
+          {running && <circle cx="90" cy="90" r="75" fill="none" stroke="rgba(15,110,86,0.15)" strokeWidth="20" strokeDasharray="471 471" strokeDashoffset="-80" strokeLinecap="round" style={{ animation: 'gaugePulse 1.5s ease-in-out infinite' }} />}
         </svg>
         <div className="gauge-text"><div className="gauge-num">{speed.toFixed(1)}</div><div className="gauge-unit">Mbps</div></div>
       </div>
@@ -269,7 +343,7 @@ function ReferralSection() {
           <button className="ref-copy-btn" onClick={copy}>{copied ? '✓ Copied!' : 'Copy Code'}</button>
           <div className="ref-share-row">
             <span className="ref-share-lbl">Share via:</span>
-            <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="ref-share-btn wa">WhatsApp</a>
+            <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="ref-share-btn wa">WhatsApp</a>
             <button className="ref-share-btn fb">Facebook</button>
           </div>
           <div className="ref-earned"><span className="ref-earned-num">৳0</span><span className="ref-earned-lbl">Rewards Earned</span></div>
@@ -288,11 +362,68 @@ function useReveal() {
     const el = ref.current; if (!el) return;
     const obs = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) { el.classList.add('revealed'); obs.disconnect(); }
-    }, { threshold: 0.12 });
+    }, { threshold: 0.08 });
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
   return ref;
+}
+
+/* ─────────────────────────────────────────
+   TYPING EFFECT
+───────────────────────────────────────── */
+function TypingText({ texts }: { texts: string[] }) {
+  const [display, setDisplay] = useState('');
+  const [textIdx, setTextIdx] = useState(0);
+  const [charIdx, setCharIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
+  useEffect(() => {
+    const current = texts[textIdx];
+    const timeout = setTimeout(() => {
+      if (!deleting) {
+        if (charIdx < current.length) {
+          setDisplay(current.slice(0, charIdx + 1));
+          setCharIdx(c => c + 1);
+        } else {
+          setTimeout(() => setDeleting(true), 1800);
+        }
+      } else {
+        if (charIdx > 0) {
+          setDisplay(current.slice(0, charIdx - 1));
+          setCharIdx(c => c - 1);
+        } else {
+          setDeleting(false);
+          setTextIdx(i => (i + 1) % texts.length);
+        }
+      }
+    }, deleting ? 40 : 70);
+    return () => clearTimeout(timeout);
+  }, [charIdx, deleting, textIdx, texts]);
+  return <span className="typing-text">{display}<span className="typing-cursor">|</span></span>;
+}
+
+/* ─────────────────────────────────────────
+   MOBILE BOTTOM NAV
+───────────────────────────────────────── */
+function MobileBottomNav() {
+  const [active, setActive] = useState('home');
+  const items = [
+    { id: 'home', icon: '🏠', label: 'Home', href: '#' },
+    { id: 'packages', icon: '📦', label: 'Plans', href: '#packages' },
+    { id: 'status', icon: '📶', label: 'Network', href: '#status' },
+    { id: 'faq', icon: '❓', label: 'FAQ', href: '#faq' },
+    { id: 'contact', icon: '📞', label: 'Contact', href: '#contact' },
+  ];
+  return (
+    <nav className="mobile-bottom-nav">
+      {items.map(item => (
+        <a key={item.id} href={item.href} className={`mbn-item${active === item.id ? ' active' : ''}`} onClick={() => setActive(item.id)}>
+          <span className="mbn-icon">{item.icon}</span>
+          <span className="mbn-label">{item.label}</span>
+        </a>
+      ))}
+    </nav>
+  );
 }
 
 /* ─────────────────────────────────────────
@@ -329,6 +460,19 @@ function MobileMenu() {
 }
 
 /* ─────────────────────────────────────────
+   STAT COUNTER ITEM
+───────────────────────────────────────── */
+function StatItem({ target, suffix, label }: { target: number; suffix: string; label: string }) {
+  const { ref, val } = useCountUp(target, suffix);
+  return (
+    <div className="stat-item" ref={ref}>
+      <div className="stat-num">{val || '0' + suffix}</div>
+      <div className="stat-lbl">{label}</div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────
    MAIN PAGE
 ───────────────────────────────────────── */
 export default function HomePage() {
@@ -352,16 +496,23 @@ export default function HomePage() {
         *{box-sizing:border-box;margin:0;padding:0}
         :root{--green:#0F6E56;--green-dark:#085041;--green-light:#e1f5ee;--gold:#BA7517;--gold-light:#faeeda;--bg:#f4f8f6}
         body{font-family:'Sora',sans-serif;background:var(--bg);color:#111;overflow-x:hidden}
-        .reveal{opacity:0;transform:translateY(32px);transition:opacity .65s ease,transform .65s ease}
+
+        /* ── REVEAL ANIMATIONS ── */
+        .reveal{opacity:0;transform:translateY(36px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1)}
         .reveal.revealed{opacity:1;transform:translateY(0)}
-        .reveal .why-card,.reveal .pkg-card,.reveal .biz-card,.reveal .testi-card,.reveal .team-card,.reveal .blog-card{opacity:0;transform:translateY(24px);transition:opacity .5s ease,transform .5s ease,box-shadow .3s,border-color .3s}
-        .reveal.revealed .why-card,.reveal.revealed .pkg-card,.reveal.revealed .biz-card,.reveal.revealed .testi-card,.reveal.revealed .team-card,.reveal.revealed .blog-card{opacity:1;transform:translateY(0)}
+        .reveal .why-card,.reveal .pkg-card,.reveal .biz-card,.reveal .testi-card,.reveal .team-card,.reveal .blog-card{opacity:0;transform:translateY(28px) scale(0.97);transition:opacity .55s cubic-bezier(.16,1,.3,1),transform .55s cubic-bezier(.16,1,.3,1),box-shadow .3s,border-color .3s}
+        .reveal.revealed .why-card,.reveal.revealed .pkg-card,.reveal.revealed .biz-card,.reveal.revealed .testi-card,.reveal.revealed .team-card,.reveal.revealed .blog-card{opacity:1;transform:translateY(0) scale(1)}
         .reveal.revealed .why-card:nth-child(1),.reveal.revealed .pkg-card:nth-child(1),.reveal.revealed .biz-card:nth-child(1),.reveal.revealed .testi-card:nth-child(1),.reveal.revealed .team-card:nth-child(1),.reveal.revealed .blog-card:nth-child(1){transition-delay:.05s}
         .reveal.revealed .why-card:nth-child(2),.reveal.revealed .pkg-card:nth-child(2),.reveal.revealed .biz-card:nth-child(2),.reveal.revealed .testi-card:nth-child(2),.reveal.revealed .team-card:nth-child(2),.reveal.revealed .blog-card:nth-child(2){transition-delay:.15s}
         .reveal.revealed .why-card:nth-child(3),.reveal.revealed .pkg-card:nth-child(3),.reveal.revealed .biz-card:nth-child(3),.reveal.revealed .testi-card:nth-child(3),.reveal.revealed .team-card:nth-child(3),.reveal.revealed .blog-card:nth-child(3){transition-delay:.25s}
         .reveal.revealed .why-card:nth-child(4),.reveal.revealed .pkg-card:nth-child(4),.reveal.revealed .team-card:nth-child(4){transition-delay:.35s}
         .reveal.revealed .why-card:nth-child(5){transition-delay:.45s}
         .reveal.revealed .why-card:nth-child(6){transition-delay:.55s}
+
+        /* ── TYPING ── */
+        .typing-text{color:var(--green)}
+        .typing-cursor{display:inline-block;width:3px;background:var(--green);margin-left:2px;animation:blink .7s step-end infinite;border-radius:2px}
+        @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
 
         /* ── NAV ── */
         .isp-nav{position:fixed;top:0;left:0;right:0;z-index:1000;background:rgba(255,255,255,0.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid transparent;transition:border-color .3s,box-shadow .3s;padding:0 5vw}
@@ -388,11 +539,28 @@ export default function HomePage() {
         .mobile-menu-link:last-of-type{border-bottom:none}
         .mobile-menu-btn{margin-top:12px;background:var(--green);color:#fff;padding:12px 0;border-radius:30px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;display:block}
 
+        /* ── MOBILE BOTTOM NAV ── */
+        .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);border-top:1px solid #e0ede8;padding:8px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(15,110,86,.08)}
+        .mbn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;padding:4px 0;transition:transform .2s}
+        .mbn-item:active{transform:scale(.92)}
+        .mbn-icon{font-size:20px;line-height:1}
+        .mbn-label{font-size:10px;font-weight:600;color:#aaa;transition:color .2s}
+        .mbn-item.active .mbn-label{color:var(--green)}
+        .mbn-item.active .mbn-icon{filter:drop-shadow(0 2px 4px rgba(15,110,86,.3))}
+
+        /* ── ANNOUNCEMENT BAR ── */
+        .announce-bar{background:linear-gradient(90deg,var(--green-dark),var(--green));color:#fff;text-align:center;padding:10px 5vw;font-size:12px;font-weight:600;letter-spacing:.3px;position:relative;z-index:999;overflow:hidden}
+        .announce-bar::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent);animation:shimmerBar 2.5s linear infinite}
+        @keyframes shimmerBar{from{transform:translateX(-100%)}to{transform:translateX(100%)} }
+        .announce-link{color:#a8f0d0;text-decoration:underline;font-weight:700;margin-left:6px}
+
         /* ── HERO ── */
         .hero{min-height:100vh;background:linear-gradient(160deg,#e8f7f1 0%,#f9fffe 40%,#fffef8 100%);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;padding-top:68px}
         .hero-orb{position:absolute;border-radius:50%;pointer-events:none}
-        .orb1{width:520px;height:520px;background:radial-gradient(circle,rgba(15,110,86,.10) 0%,transparent 70%);top:-80px;right:-60px}
-        .orb2{width:380px;height:380px;background:radial-gradient(circle,rgba(186,117,23,.08) 0%,transparent 70%);bottom:60px;left:-80px}
+        .orb1{width:520px;height:520px;background:radial-gradient(circle,rgba(15,110,86,.10) 0%,transparent 70%);top:-80px;right:-60px;animation:orbFloat 8s ease-in-out infinite}
+        .orb2{width:380px;height:380px;background:radial-gradient(circle,rgba(186,117,23,.08) 0%,transparent 70%);bottom:60px;left:-80px;animation:orbFloat 10s ease-in-out infinite reverse}
+        .orb3{width:240px;height:240px;background:radial-gradient(circle,rgba(15,110,86,.06) 0%,transparent 70%);top:40%;left:40%;animation:orbFloat 12s ease-in-out infinite 2s}
+        @keyframes orbFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-24px) scale(1.04)}}
         .hero-content{max-width:1160px;width:100%;margin:0 auto;padding:80px 5vw;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
         .hero-badge{display:inline-flex;align-items:center;gap:8px;background:var(--green-light);color:var(--green-dark);font-size:11px;font-weight:700;padding:6px 16px;border-radius:30px;margin-bottom:24px;text-transform:uppercase;letter-spacing:1.2px}
         .live-dot{width:7px;height:7px;background:var(--green);border-radius:50%;position:relative;flex-shrink:0}
@@ -403,12 +571,15 @@ export default function HomePage() {
         @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
         .hero-sub{font-size:15px;color:#666;line-height:1.8;margin-bottom:32px;max-width:460px}
         .hero-btns{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:48px}
-        .btn-primary{background:var(--green);color:#fff;padding:14px 30px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 6px 24px rgba(15,110,86,.32);transition:background .25s,transform .2s,box-shadow .25s;text-decoration:none;display:inline-block}
+        .btn-primary{background:var(--green);color:#fff;padding:14px 30px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 6px 24px rgba(15,110,86,.32);transition:background .25s,transform .2s,box-shadow .25s;text-decoration:none;display:inline-block;position:relative;overflow:hidden}
+        .btn-primary::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);transform:translateX(-100%);transition:transform .4s}
+        .btn-primary:hover::after{transform:translateX(100%)}
         .btn-primary:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 10px 32px rgba(15,110,86,.4)}
-        .btn-outline{background:transparent;color:var(--green);padding:14px 30px;border-radius:50px;font-size:14px;font-weight:700;border:2px solid rgba(15,110,86,.25);cursor:pointer;font-family:'Sora',sans-serif;transition:border-color .25s,transform .2s;text-decoration:none;display:inline-block}
-        .btn-outline:hover{border-color:var(--green);transform:translateY(-2px)}
-        .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e0ede8;border-radius:16px;overflow:hidden;background:#fff}
-        .stat-item{padding:20px 16px;text-align:center;border-right:1px solid #e0ede8}
+        .btn-outline{background:transparent;color:var(--green);padding:14px 30px;border-radius:50px;font-size:14px;font-weight:700;border:2px solid rgba(15,110,86,.25);cursor:pointer;font-family:'Sora',sans-serif;transition:border-color .25s,transform .2s,background .25s;text-decoration:none;display:inline-block}
+        .btn-outline:hover{border-color:var(--green);transform:translateY(-2px);background:var(--green-light)}
+        .hero-stats{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid #e0ede8;border-radius:16px;overflow:hidden;background:#fff;box-shadow:0 4px 20px rgba(15,110,86,.06)}
+        .stat-item{padding:20px 16px;text-align:center;border-right:1px solid #e0ede8;transition:background .3s}
+        .stat-item:hover{background:var(--green-light)}
         .stat-item:last-child{border-right:none}
         .stat-num{font-size:26px;font-weight:900;color:var(--green);letter-spacing:-1px}
         .stat-lbl{font-size:11px;color:#999;margin-top:4px;font-weight:600;letter-spacing:.5px}
@@ -429,18 +600,23 @@ export default function HomePage() {
         .section-sub{font-size:14px;color:#888;line-height:1.7}
         .whyus-bg{background:linear-gradient(160deg,#f0faf6 0%,#fff 100%)}
         .why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
-        .why-card{background:#fff;border:1.5px solid #e8f0ed;border-radius:20px;padding:28px 24px;transition:transform .3s,box-shadow .3s,border-color .3s}
+        .why-card{background:#fff;border:1.5px solid #e8f0ed;border-radius:20px;padding:28px 24px;transition:transform .3s,box-shadow .3s,border-color .3s;position:relative;overflow:hidden}
+        .why-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--green-light),transparent);opacity:0;transition:opacity .3s}
+        .why-card:hover::before{opacity:1}
         .why-card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(15,110,86,.11);border-color:var(--green)}
-        .why-icon{font-size:36px;margin-bottom:16px}
-        .why-title{font-size:15px;font-weight:800;color:#111;margin-bottom:8px}
-        .why-desc{font-size:13px;color:#666;line-height:1.7}
+        .why-icon{font-size:36px;margin-bottom:16px;display:block;transition:transform .3s}
+        .why-card:hover .why-icon{transform:scale(1.15) rotate(-5deg)}
+        .why-title{font-size:15px;font-weight:800;color:#111;margin-bottom:8px;position:relative}
+        .why-desc{font-size:13px;color:#666;line-height:1.7;position:relative}
         .packages-bg{background:#fff}
         .pkg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
-        .pkg-card{background:#fff;border:1.5px solid #e8f0ed;border-radius:24px;padding:28px 20px;text-align:center;position:relative;transition:transform .3s,box-shadow .3s,border-color .3s;cursor:pointer}
+        .pkg-card{background:#fff;border:1.5px solid #e8f0ed;border-radius:24px;padding:28px 20px;text-align:center;position:relative;transition:transform .3s,box-shadow .3s,border-color .3s;cursor:pointer;overflow:hidden}
+        .pkg-card::after{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(15,110,86,.04),transparent);opacity:0;transition:opacity .3s;pointer-events:none}
+        .pkg-card:hover::after{opacity:1}
         .pkg-card:hover{transform:translateY(-8px);box-shadow:0 24px 56px rgba(15,110,86,.13);border-color:var(--green)}
         .pkg-card.featured{border:2px solid var(--green);background:linear-gradient(160deg,#f0faf6 0%,#fff 70%);transform:scale(1.04)}
         .pkg-card.featured:hover{transform:scale(1.04) translateY(-8px)}
-        .pkg-badge-pill{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+        .pkg-badge-pill{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:var(--green);color:#fff;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap;box-shadow:0 4px 12px rgba(15,110,86,.3)}
         .pkg-name{font-size:11px;font-weight:700;color:#999;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:16px}
         .pkg-speed{font-size:52px;font-weight:900;color:var(--green);line-height:1;letter-spacing:-3px}
         .pkg-unit{font-size:13px;font-weight:500;letter-spacing:0}
@@ -449,8 +625,11 @@ export default function HomePage() {
         .pkg-divider{border:none;border-top:1px solid #f0f0f0;margin:16px 0}
         .pkg-feature{font-size:12px;color:#555;margin:7px 0;text-align:left;display:flex;align-items:center;gap:7px}
         .pkg-check{color:var(--green);font-weight:800;font-size:13px}
-        .pkg-btn{margin-top:20px;width:100%;padding:11px 0;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;border:2px solid var(--green);color:var(--green);background:transparent;transition:all .25s;text-decoration:none;display:block;text-align:center}
-        .pkg-btn:hover,.pkg-card.featured .pkg-btn{background:var(--green);color:#fff}
+        .pkg-btn{margin-top:20px;width:100%;padding:11px 0;border-radius:30px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;border:2px solid var(--green);color:var(--green);background:transparent;transition:all .25s;text-decoration:none;display:block;text-align:center;position:relative;overflow:hidden}
+        .pkg-btn::before{content:'';position:absolute;inset:0;background:var(--green);transform:scaleX(0);transform-origin:left;transition:transform .3s;z-index:0}
+        .pkg-btn span{position:relative;z-index:1}
+        .pkg-btn:hover::before,.pkg-card.featured .pkg-btn::before{transform:scaleX(1)}
+        .pkg-btn:hover,.pkg-card.featured .pkg-btn{color:#fff}
         .biz-bg{background:linear-gradient(160deg,#0a1f18 0%,#0d2d22 100%)}
         .biz-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
         .biz-card{border-radius:24px;padding:32px 24px;position:relative;transition:transform .3s,box-shadow .3s}
@@ -480,10 +659,11 @@ export default function HomePage() {
         .status-pulse{width:10px;height:10px;border-radius:50%;background:#22c55e;position:relative;flex-shrink:0}
         .status-pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:2px solid #22c55e;animation:ping 1.8s ease-out infinite;opacity:0}
         .status-grid{display:flex;flex-direction:column;gap:10px}
-        .status-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1.5px solid #e8f0ed;border-radius:12px;padding:14px 20px;flex-wrap:wrap;gap:10px}
+        .status-row{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1.5px solid #e8f0ed;border-radius:12px;padding:14px 20px;flex-wrap:wrap;gap:10px;transition:border-color .2s,box-shadow .2s}
+        .status-row:hover{border-color:var(--green);box-shadow:0 4px 16px rgba(15,110,86,.08)}
         .status-dot-sm{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-        .status-dot-sm.operational{background:#22c55e}
-        .status-dot-sm.maintenance{background:#f59e0b}
+        .status-dot-sm.operational{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.15)}
+        .status-dot-sm.maintenance{background:#f59e0b;box-shadow:0 0 0 3px rgba(245,158,11,.15)}
         .status-name{font-size:13px;font-weight:700;color:#111}
         .status-meta{font-size:12px;color:#888}
         .status-meta strong{color:#333}
@@ -491,25 +671,28 @@ export default function HomePage() {
         .status-tag.operational{background:#dcfce7;color:#16a34a}
         .status-tag.maintenance{background:#fef9c3;color:#b45309}
         .speedtest-bg{background:#fff}
-        .speed-box{background:var(--bg);border-radius:28px;border:1.5px solid #e0ede8;padding:48px;text-align:center;max-width:520px;margin:0 auto}
+        .speed-box{background:var(--bg);border-radius:28px;border:1.5px solid #e0ede8;padding:48px;text-align:center;max-width:520px;margin:0 auto;box-shadow:0 8px 32px rgba(15,110,86,.06)}
         .speed-gauge{width:180px;height:180px;margin:0 auto 32px;position:relative}
         .gauge-svg{width:100%;height:100%}
         .gauge-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
         .gauge-num{font-size:36px;font-weight:900;color:var(--green);letter-spacing:-2px}
         .gauge-unit{font-size:12px;color:#999;font-weight:600}
         .speed-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:24px 0}
-        .speed-card{background:var(--green-light);border-radius:14px;padding:16px;text-align:center}
+        .speed-card{background:var(--green-light);border-radius:14px;padding:16px;text-align:center;transition:transform .2s}
+        .speed-card:hover{transform:translateY(-2px)}
         .speed-card-val{font-size:22px;font-weight:800;color:var(--green)}
         .speed-card-lbl{font-size:11px;color:#555;margin-top:4px;font-weight:600}
-        .test-btn{background:var(--green);color:#fff;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 6px 24px rgba(15,110,86,.3);transition:all .25s}
-        .test-btn:hover{background:var(--green-dark);transform:translateY(-2px)}
+        .test-btn{background:var(--green);color:#fff;padding:14px 40px;border-radius:50px;font-size:14px;font-weight:700;border:none;cursor:pointer;font-family:'Sora',sans-serif;box-shadow:0 6px 24px rgba(15,110,86,.3);transition:all .25s;position:relative;overflow:hidden}
+        .test-btn:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 10px 32px rgba(15,110,86,.4)}
         .test-btn:disabled{opacity:.6;cursor:not-allowed;transform:none}
+        @keyframes gaugePulse{0%,100%{opacity:.3}50%{opacity:.7}}
         .coverage-bg{background:var(--bg)}
         .coverage-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
         .area-card{background:#fff;border:1.5px solid #e0ede8;border-radius:14px;padding:16px 14px;display:flex;align-items:center;gap:10px;transition:all .25s}
-        .area-card:hover{border-color:var(--green);background:var(--green-light);transform:translateY(-3px)}
+        .area-card:hover{border-color:var(--green);background:var(--green-light);transform:translateY(-3px);box-shadow:0 8px 24px rgba(15,110,86,.1)}
         .area-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
-        .area-dot.active{background:#22c55e}
+        .area-dot.active{background:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,.2);animation:areaPulse 2s ease-in-out infinite}
+        @keyframes areaPulse{0%,100%{box-shadow:0 0 0 3px rgba(34,197,94,.2)}50%{box-shadow:0 0 0 6px rgba(34,197,94,.08)}}
         .area-dot.coming{background:#f59e0b}
         .area-name{font-size:13px;font-weight:600;color:#333}
         .area-status{font-size:10px;color:#888}
@@ -517,18 +700,21 @@ export default function HomePage() {
         .legend-dot{width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:6px;vertical-align:middle}
         .app-bg{background:#fff}
         .app-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-        .app-mockup{background:var(--bg);border:1.5px solid #e0ede8;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(15,110,86,.08)}
+        .app-mockup{background:var(--bg);border:1.5px solid #e0ede8;border-radius:32px;padding:32px;display:flex;flex-direction:column;gap:16px;box-shadow:0 20px 60px rgba(15,110,86,.08);transition:transform .3s,box-shadow .3s}
+        .app-mockup:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(15,110,86,.12)}
         .app-mock-header{display:flex;align-items:center;gap:12px;padding-bottom:16px;border-bottom:1px solid #e8f0ed}
         .app-mock-logo{width:40px;height:40px;background:var(--green);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:14px}
         .app-mock-title{font-size:14px;font-weight:800;color:#111}
         .app-mock-sub{font-size:11px;color:#999}
-        .app-mock-stat{background:#fff;border:1.5px solid #e8f0ed;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between}
+        .app-mock-stat{background:#fff;border:1.5px solid #e8f0ed;border-radius:12px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;transition:border-color .2s}
+        .app-mock-stat:hover{border-color:var(--green)}
         .app-mock-stat-label{font-size:11px;color:#666;font-weight:600}
         .app-mock-stat-val{font-size:18px;font-weight:900;color:var(--green)}
         .app-mock-bar{height:8px;background:#e8f0ed;border-radius:8px;overflow:hidden}
         .app-mock-bar-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--green),#1db87e)}
         .app-features{display:flex;flex-direction:column;gap:12px;margin:24px 0}
-        .app-feature-item{display:flex;align-items:center;gap:12px;font-size:13px;color:#444}
+        .app-feature-item{display:flex;align-items:center;gap:12px;font-size:13px;color:#444;transition:transform .2s}
+        .app-feature-item:hover{transform:translateX(4px)}
         .app-feature-icon{width:32px;height:32px;background:var(--green-light);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
         .app-btns{display:flex;gap:12px;flex-wrap:wrap}
         .app-store-btn{display:flex;align-items:center;gap:10px;background:#111;color:#fff;padding:12px 20px;border-radius:12px;font-family:'Sora',sans-serif;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:background .2s,transform .2s}
@@ -537,7 +723,8 @@ export default function HomePage() {
         .app-store-sub{font-size:10px;color:rgba(255,255,255,.6);font-weight:400}
         .referral-bg{background:linear-gradient(160deg,#fdf8ee 0%,#fffef8 100%)}
         .referral-wrap{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
-        .referral-icon{font-size:52px;margin-bottom:16px}
+        .referral-icon{font-size:52px;margin-bottom:16px;display:block;animation:giftBounce 2s ease-in-out infinite}
+        @keyframes giftBounce{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-6px) rotate(-5deg)}75%{transform:translateY(-3px) rotate(3deg)}}
         .referral-title{font-size:clamp(22px,2.5vw,30px);font-weight:800;color:#111;margin-bottom:12px;letter-spacing:-1px}
         .referral-sub{font-size:14px;color:#666;line-height:1.7;margin-bottom:24px}
         .referral-steps{display:flex;flex-direction:column;gap:12px}
@@ -561,7 +748,7 @@ export default function HomePage() {
         .testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
         .testi-card{background:#fff;border-radius:20px;border:1.5px solid #e8f0ed;padding:24px;transition:transform .3s,box-shadow .3s}
         .testi-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(15,110,86,.10)}
-        .testi-stars{color:var(--gold);font-size:14px;margin-bottom:12px}
+        .testi-stars{color:var(--gold);font-size:14px;margin-bottom:12px;letter-spacing:2px}
         .testi-text{font-size:13px;color:#444;line-height:1.75;margin-bottom:20px}
         .testi-author{display:flex;align-items:center;gap:12px}
         .testi-avatar{width:42px;height:42px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0}
@@ -571,7 +758,8 @@ export default function HomePage() {
         .blog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}
         .blog-card{background:#f8fbf9;border:1.5px solid #e8f0ed;border-radius:20px;overflow:hidden;transition:transform .3s,box-shadow .3s,border-color .3s;cursor:pointer;text-decoration:none;display:block}
         .blog-card:hover{transform:translateY(-6px);box-shadow:0 20px 48px rgba(15,110,86,.12);border-color:var(--green)}
-        .blog-thumb{height:140px;display:flex;align-items:center;justify-content:center;font-size:56px}
+        .blog-thumb{height:140px;display:flex;align-items:center;justify-content:center;font-size:56px;transition:transform .3s}
+        .blog-card:hover .blog-thumb{transform:scale(1.05)}
         .blog-body{padding:20px}
         .blog-tag{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.6px;display:inline-block;margin-bottom:10px}
         .blog-title{font-size:14px;font-weight:800;color:#111;line-height:1.45;margin-bottom:12px}
@@ -590,7 +778,8 @@ export default function HomePage() {
         .team-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:20px}
         .team-card{background:var(--bg);border-radius:20px;border:1.5px solid #e8f0ed;padding:28px 20px;text-align:center;transition:transform .3s,box-shadow .3s}
         .team-card:hover{transform:translateY(-5px);box-shadow:0 16px 40px rgba(15,110,86,.10)}
-        .team-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800}
+        .team-avatar{width:72px;height:72px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;transition:transform .3s}
+        .team-card:hover .team-avatar{transform:scale(1.08)}
         .team-name{font-size:15px;font-weight:700;color:#111;margin-bottom:4px}
         .team-role{font-size:12px;color:var(--green);font-weight:600;margin-bottom:8px}
         .team-desc{font-size:12px;color:#888;line-height:1.6}
@@ -613,6 +802,15 @@ export default function HomePage() {
         .float-wa{position:fixed;bottom:28px;right:28px;z-index:999;width:56px;height:56px;background:#25D366;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 24px rgba(37,211,102,.45);text-decoration:none;transition:transform .25s,box-shadow .25s;animation:waPop .5s 1.5s ease both}
         .float-wa:hover{transform:scale(1.12);box-shadow:0 10px 32px rgba(37,211,102,.6)}
         @keyframes waPop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+
+        /* ── CAROUSEL (mobile) ── */
+        .carousel-wrap{width:100%}
+        .carousel-outer{overflow:hidden;width:100%;border-radius:20px}
+        .carousel-track{display:flex;gap:16px;transition:transform .4s cubic-bezier(.16,1,.3,1);will-change:transform}
+        .carousel-slide{flex:0 0 100%;min-width:0}
+        .carousel-dots{display:flex;justify-content:center;gap:6px;margin-top:16px}
+        .carousel-dot{width:7px;height:7px;border-radius:50%;background:#d0e8df;border:none;cursor:pointer;transition:all .25s;padding:0}
+        .carousel-dot.active{background:var(--green);width:20px;border-radius:4px}
 
         /* ════════════════════════════════
            TABLET  (≤ 900px)
@@ -640,6 +838,11 @@ export default function HomePage() {
           .nav-btn{display:none}
           .hamburger{display:flex}
           .mobile-menu{display:flex}
+          .mobile-bottom-nav{display:flex}
+          .float-wa{bottom:80px;right:16px;width:48px;height:48px;font-size:22px}
+
+          /* Announce bar */
+          .announce-bar{font-size:11px;padding:8px 5vw}
 
           /* Hero */
           .hero{padding-top:58px}
@@ -659,17 +862,21 @@ export default function HomePage() {
           .section-title{font-size:22px;letter-spacing:-.5px}
           .section-header{margin-bottom:32px}
 
-          /* Why us */
-          .why-grid{grid-template-columns:1fr}
-          .why-card{padding:20px 16px}
+          /* Why us — carousel on mobile */
+          .why-grid{display:none}
+          .why-carousel{display:block}
+          .why-card{padding:24px 20px;height:100%}
 
-          /* Packages */
-          .pkg-grid{grid-template-columns:1fr}
+          /* Packages — carousel on mobile */
+          .pkg-grid{display:none}
+          .pkg-carousel{display:block}
           .pkg-card{padding:24px 18px}
           .pkg-speed{font-size:44px}
+          .pkg-card.featured{transform:none}
 
-          /* Business */
-          .biz-grid{grid-template-columns:1fr}
+          /* Business — carousel on mobile */
+          .biz-grid{display:none}
+          .biz-carousel{display:block}
           .biz-speed{font-size:36px}
 
           /* Status */
@@ -696,11 +903,13 @@ export default function HomePage() {
           .ref-card{padding:24px 16px}
           .ref-code{font-size:15px;letter-spacing:2px;padding:12px 10px}
 
-          /* Testimonials */
-          .testi-grid{grid-template-columns:1fr}
+          /* Testimonials — carousel on mobile */
+          .testi-grid{display:none}
+          .testi-carousel{display:block}
 
-          /* Blog */
-          .blog-grid{grid-template-columns:1fr}
+          /* Blog — carousel on mobile */
+          .blog-grid{display:none}
+          .blog-carousel{display:block}
 
           /* FAQ */
           .faq-q{font-size:13px;padding:16px 0}
@@ -716,16 +925,23 @@ export default function HomePage() {
           .btn-wa,.btn-ghost{justify-content:center;text-align:center;width:100%}
 
           /* Footer */
-          .isp-footer{padding:32px 5vw}
+          .isp-footer{padding:32px 5vw 96px}
           .footer-inner{flex-direction:column;align-items:flex-start;gap:12px}
           .footer-links{gap:16px}
-
-          /* Float WA */
-          .float-wa{bottom:18px;right:16px;width:48px;height:48px;font-size:22px}
         }
+
+        /* Hide carousels on desktop */
+        .why-carousel,.pkg-carousel,.biz-carousel,.testi-carousel,.blog-carousel{display:none}
       `}</style>
 
-      <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="float-wa" title="Chat on WhatsApp">💬</a>
+      <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="float-wa" title="Chat on WhatsApp">💬</a>
+      <MobileBottomNav />
+
+      {/* Announcement Bar */}
+      <div className="announce-bar">
+        🎉 New coverage added: Aktapara & Bagan Bari!
+        <a href="#coverage" className="announce-link">Check Coverage →</a>
+      </div>
 
       <nav ref={navRef} className="isp-nav">
         <div className="nav-inner">
@@ -745,20 +961,24 @@ export default function HomePage() {
       </nav>
 
       <section className="hero">
-        <div className="hero-orb orb1" /><div className="hero-orb orb2" />
+        <div className="hero-orb orb1" /><div className="hero-orb orb2" /><div className="hero-orb orb3" />
         <div className="hero-content">
           <div>
             <div className="hero-badge"><div className="live-dot" />Ultra-fast fiber internet</div>
-            <h1 className="hero-title">In Your Area <br /><span className="hl">The best fiber.</span><br />Network</h1>
+            <h1 className="hero-title">
+              In Your Area <br />
+              <TypingText texts={['The best fiber.', 'Lightning speed.', 'Always online.', 'Zero downtime.']} />
+              <br />Network
+            </h1>
             <p className="hero-sub">Uninterrupted high-speed connectivity and 24/7 dedicated support at affordable prices. Join our family of 500+ satisfied customers today.</p>
             <div className="hero-btns">
               <Link href="/register" className="btn-primary">Get Connected →</Link>
               <a href="#packages" className="btn-outline">View Packages</a>
             </div>
             <div className="hero-stats">
-              <div className="stat-item"><div className="stat-num">500+</div><div className="stat-lbl">Happy Customers</div></div>
-              <div className="stat-item"><div className="stat-num">99.9%</div><div className="stat-lbl">Uptime</div></div>
-              <div className="stat-item"><div className="stat-num">24/7</div><div className="stat-lbl">Support</div></div>
+              <StatItem target={500} suffix="+" label="Happy Customers" />
+              <StatItem target={99} suffix=".9%" label="Uptime" />
+              <StatItem target={24} suffix="/7" label="Support" />
             </div>
           </div>
           <div className="hero-right"><NetworkCanvas /></div>
@@ -772,14 +992,27 @@ export default function HomePage() {
             <h2 className="section-title">Everything You Need, Nothing You Don't</h2>
             <p className="section-sub">Built for Dhaka. Designed for reliability. Priced for everyone.</p>
           </div>
+          {/* Desktop grid */}
           <div ref={whyRef} className="why-grid reveal">
             {WHY_US.map(w => (
               <div key={w.title} className="why-card">
-                <div className="why-icon">{w.icon}</div>
+                <span className="why-icon">{w.icon}</span>
                 <div className="why-title">{w.title}</div>
                 <div className="why-desc">{w.desc}</div>
               </div>
             ))}
+          </div>
+          {/* Mobile carousel */}
+          <div className="why-carousel">
+            <Carousel>
+              {WHY_US.map(w => (
+                <div key={w.title} className="why-card">
+                  <span className="why-icon">{w.icon}</span>
+                  <div className="why-title">{w.title}</div>
+                  <div className="why-desc">{w.desc}</div>
+                </div>
+              ))}
+            </Carousel>
           </div>
         </div>
       </section>
@@ -791,6 +1024,7 @@ export default function HomePage() {
             <h2 className="section-title">Choose Your Preferred Plan</h2>
             <p className="section-sub">Simple pricing, no hidden charges. Change anytime.</p>
           </div>
+          {/* Desktop grid */}
           <div ref={pkgRef} className="pkg-grid reveal">
             {PACKAGES.map(pkg => (
               <div key={pkg.name} className={`pkg-card${pkg.featured ? ' featured' : ''}`}>
@@ -800,9 +1034,25 @@ export default function HomePage() {
                 <div className="pkg-price">৳{pkg.price} <span>/ month</span></div>
                 <hr className="pkg-divider" />
                 {pkg.features.map(f => <div key={f} className="pkg-feature"><span className="pkg-check">✓</span> {f}</div>)}
-                <Link href={`/register?package=${pkg.name}`} className="pkg-btn">Get It Now ↗</Link>
+                <Link href={`/register?package=${pkg.name}`} className="pkg-btn"><span>Get It Now ↗</span></Link>
               </div>
             ))}
+          </div>
+          {/* Mobile carousel */}
+          <div className="pkg-carousel">
+            <Carousel>
+              {PACKAGES.map(pkg => (
+                <div key={pkg.name} className={`pkg-card${pkg.featured ? ' featured' : ''}`}>
+                  {pkg.badge && <div className="pkg-badge-pill">{pkg.badge}</div>}
+                  <div className="pkg-name">{pkg.name}</div>
+                  <div className="pkg-speed">{pkg.speed}<span className="pkg-unit"> Mbps</span></div>
+                  <div className="pkg-price">৳{pkg.price} <span>/ month</span></div>
+                  <hr className="pkg-divider" />
+                  {pkg.features.map(f => <div key={f} className="pkg-feature"><span className="pkg-check">✓</span> {f}</div>)}
+                  <Link href={`/register?package=${pkg.name}`} className="pkg-btn"><span>Get It Now ↗</span></Link>
+                </div>
+              ))}
+            </Carousel>
           </div>
         </div>
       </section>
@@ -814,6 +1064,7 @@ export default function HomePage() {
             <h2 className="biz-section-title">Enterprise-Grade Connectivity</h2>
             <p className="biz-section-sub">Dedicated bandwidth, guaranteed SLAs, and a named account manager for your business.</p>
           </div>
+          {/* Desktop grid */}
           <div ref={bizRef} className="biz-grid reveal">
             {BUSINESS_PLANS.map(b => (
               <div key={b.name} className={`biz-card${b.popular ? ' popular-biz' : ''}`}>
@@ -828,6 +1079,24 @@ export default function HomePage() {
                 <Link href={`/register?package=${b.name}`} className="biz-btn">Get a Quote →</Link>
               </div>
             ))}
+          </div>
+          {/* Mobile carousel */}
+          <div className="biz-carousel">
+            <Carousel>
+              {BUSINESS_PLANS.map(b => (
+                <div key={b.name} className={`biz-card${b.popular ? ' popular-biz' : ''}`} style={{ margin: '16px 0' }}>
+                  {b.popular && <div className="biz-popular-badge">⭐ Most Chosen</div>}
+                  <div className="biz-icon" style={{ background: b.bg, color: b.color }}>🏢</div>
+                  <div className="biz-name">{b.name}</div>
+                  <div className="biz-speed">{b.speed}<span className="biz-unit"> Mbps</span></div>
+                  <div className="biz-users">{b.users}</div>
+                  <div className="biz-price">৳{b.price.toLocaleString()} <span>/ month</span></div>
+                  <hr className="biz-divider" />
+                  {b.features.map(f => <div key={f} className="biz-feature"><span className="biz-check">✓</span> {f}</div>)}
+                  <Link href={`/register?package=${b.name}`} className="biz-btn">Get a Quote →</Link>
+                </div>
+              ))}
+            </Carousel>
           </div>
         </div>
       </section>
@@ -924,6 +1193,7 @@ export default function HomePage() {
             <h2 className="section-title">What Our Customers Say</h2>
             <p className="section-sub">Some experiences from 500+ satisfied customers</p>
           </div>
+          {/* Desktop grid */}
           <div ref={testiRef} className="testi-grid reveal">
             {TESTIMONIALS.map(t => (
               <div key={t.name} className="testi-card">
@@ -936,6 +1206,21 @@ export default function HomePage() {
               </div>
             ))}
           </div>
+          {/* Mobile carousel */}
+          <div className="testi-carousel">
+            <Carousel>
+              {TESTIMONIALS.map(t => (
+                <div key={t.name} className="testi-card">
+                  <div className="testi-stars">{'★'.repeat(t.stars)}{'☆'.repeat(5 - t.stars)}</div>
+                  <p className="testi-text">&ldquo;{t.text}&rdquo;</p>
+                  <div className="testi-author">
+                    <div className="testi-avatar" style={{ background: t.bg, color: t.color }}>{getInitials(t.name)}</div>
+                    <div><div className="testi-name">{t.name}</div><div className="testi-loc">{t.loc}</div></div>
+                  </div>
+                </div>
+              ))}
+            </Carousel>
+          </div>
         </div>
       </section>
 
@@ -946,6 +1231,7 @@ export default function HomePage() {
             <h2 className="section-title">Tips, Guides & Updates</h2>
             <p className="section-sub">Stay informed with the latest from SanafISP</p>
           </div>
+          {/* Desktop grid */}
           <div ref={blogRef} className="blog-grid reveal">
             {BLOG_POSTS.map(p => (
               <a key={p.title} href={p.href} className="blog-card" target="_blank" rel="noopener noreferrer">
@@ -957,6 +1243,21 @@ export default function HomePage() {
                 </div>
               </a>
             ))}
+          </div>
+          {/* Mobile carousel */}
+          <div className="blog-carousel">
+            <Carousel>
+              {BLOG_POSTS.map(p => (
+                <a key={p.title} href={p.href} className="blog-card" target="_blank" rel="noopener noreferrer">
+                  <div className="blog-thumb" style={{ background: p.bg }}>{p.emoji}</div>
+                  <div className="blog-body">
+                    <div className="blog-tag" style={{ background: p.bg, color: p.color }}>{p.tag}</div>
+                    <div className="blog-title">{p.title}</div>
+                    <div className="blog-meta"><span>{p.date}</span><span>{p.read}</span></div>
+                  </div>
+                </a>
+              ))}
+            </Carousel>
           </div>
           <div className="blog-more"><a href="https://blog.apnic.net" target="_blank" rel="noopener noreferrer" className="btn-outline">View All Articles →</a></div>
         </div>
@@ -999,13 +1300,13 @@ export default function HomePage() {
             <p className="contact-sub">
               Contact us for new connections or technical support<br />
               Our team is ready to serve you 24/7<br />
-              <span style={{ opacity: .85 }}>📞 01723-133845 &nbsp;|&nbsp; ✉️ mdsalimahmed3331@gmail.com</span>
+              <span style={{ opacity: .85 }}>📞 01605-952881 &nbsp;|&nbsp; ✉️ mdsalimahmed3331@gmail.com</span>
             </p>
           </div>
           <div className="contact-btns">
-            <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="btn-wa">💬 WhatsApp Us</a>
+            <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="btn-wa">💬 WhatsApp Us</a>
             <Link href="/support" className="btn-ghost">📋 File a Complaint</Link>
-            <a href="tel:+8801723133845" className="btn-ghost">📞 Call Us</a>
+            <a href="tel:+8801605952881" className="btn-ghost">📞 Call Us</a>
           </div>
         </div>
       </section>

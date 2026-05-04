@@ -23,6 +23,9 @@ const emptyForm = { fullName: '', email: '', phone: '', password: '', packageId:
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
+  const [showAdminModal, setShowAdminModal] = useState(false);
+  const [adminForm, setAdminForm] = useState({ fullName: '', email: '', phone: '', password: '' });
+  const [creatingAdmin, setCreatingAdmin] = useState(false);
   const [packages, setPackages] = useState<Package[]>([]);
   const [loading, setLoading] = useState(true);
   const [disabling, setDisabling] = useState<number | null>(null);
@@ -110,6 +113,24 @@ export default function AdminUsersPage() {
     }
   };
 
+  const handleCreateAdmin = async () => {
+    if (!adminForm.fullName || !adminForm.email || !adminForm.phone || !adminForm.password) {
+      alert('Fill all admin fields!');
+      return;
+    }
+    setCreatingAdmin(true);
+    try {
+      await api.post('/users/create-admin', adminForm);
+      alert('✅ Admin created successfully!');
+      setShowAdminModal(false);
+      setAdminForm({ fullName: '', email: '', phone: '', password: '' });
+    } catch (err: any) {
+      alert(err?.response?.data?.message || 'Failed to create admin!');
+    } finally {
+      setCreatingAdmin(false);
+    }
+  };
+
   const handleDelete = async (userId: number, name: string) => {
     if (!confirm(`Delete "${name}"? This action cannot be undone!`)) return;
     setDeleting(userId);
@@ -173,6 +194,7 @@ export default function AdminUsersPage() {
     <>
       <style>{styles}</style>
 
+      {/* Create/Edit User Modal */}
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
@@ -246,6 +268,63 @@ export default function AdminUsersPage() {
         </div>
       )}
 
+      {/* Create Admin Modal */}
+      {showAdminModal && (
+        <div className="modal-overlay" onClick={() => setShowAdminModal(false)}>
+          <div className="modal" onClick={e => e.stopPropagation()}>
+            <div className="modal-header">
+              <div className="modal-title">👑 Create New Admin</div>
+              <button className="modal-close" onClick={() => setShowAdminModal(false)}>✕</button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label>Full Name *</label>
+                <input
+                  className="form-input"
+                  placeholder="Admin Name"
+                  value={adminForm.fullName}
+                  onChange={e => setAdminForm({ ...adminForm, fullName: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Email *</label>
+                <input
+                  className="form-input"
+                  placeholder="admin@example.com"
+                  value={adminForm.email}
+                  onChange={e => setAdminForm({ ...adminForm, email: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Phone *</label>
+                <input
+                  className="form-input"
+                  placeholder="01700000000"
+                  value={adminForm.phone}
+                  onChange={e => setAdminForm({ ...adminForm, phone: e.target.value })}
+                />
+              </div>
+              <div className="form-group">
+                <label>Password *</label>
+                <input
+                  className="form-input"
+                  type="password"
+                  placeholder="Minimum 6 characters"
+                  value={adminForm.password}
+                  onChange={e => setAdminForm({ ...adminForm, password: e.target.value })}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel-modal" onClick={() => setShowAdminModal(false)}>Cancel</button>
+              <button className="btn-submit-modal" onClick={handleCreateAdmin} disabled={creatingAdmin}>
+                {creatingAdmin ? 'Creating...' : '👑 Create Admin'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <nav className="nav">
         <div className="nav-inner">
           <div className="logo">Sanaf<span className="logo-accent">ISP</span>.net</div>
@@ -253,8 +332,9 @@ export default function AdminUsersPage() {
             <a href="/admin" className={`nav-link admin ${pathname === '/admin' ? 'active' : ''}`}>Admin Home</a>
             <a href="/admin/users" className={`nav-link admin ${pathname === '/admin/users' ? 'active' : ''}`}>Manage Users</a>
             <a href="/admin/complaints" className={`nav-link admin ${pathname === '/admin/complaints' ? 'active' : ''}`}>Complaints</a>
+            <a href="/admin/profile" className={`nav-link admin ${pathname === '/admin/profile' ? 'active' : ''}`}>Profile</a>
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <button className="logout-btn" onClick={handleLogout}>
               <span className="logout-icon">⏻</span> Logout
             </button>
@@ -268,6 +348,7 @@ export default function AdminUsersPage() {
             <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
             <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
             <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+            <a href="/admin/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>👤 Profile</a>
           </div>
         )}
       </nav>
@@ -304,7 +385,12 @@ export default function AdminUsersPage() {
 
         <div className="section-header">
           <div className="section-title">📋 All Users</div>
-          <button className="btn-create" onClick={openCreate}>➕ Create User</button>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button className="btn-admin" onClick={() => setShowAdminModal(true)}>
+              👑 Create Admin
+            </button>
+            <button className="btn-create" onClick={openCreate}>➕ Create User</button>
+          </div>
         </div>
 
         <div className="table-card">
@@ -457,6 +543,8 @@ body { font-family: 'Sora', sans-serif; background: var(--bg); color: #111; min-
 .btn-submit-modal { background: var(--green); color: #fff; border: none; border-radius: 10px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; transition: all .2s; }
 .btn-submit-modal:hover { background: var(--green-dark); }
 .btn-submit-modal:disabled { opacity: .5; cursor: not-allowed; }
+.btn-admin { background: var(--gold-light); color: var(--gold); border: 1.5px solid #e8c97a; border-radius: 20px; padding: 9px 20px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'Sora', sans-serif; transition: all .2s; }
+.btn-admin:hover { background: #f0d48a; transform: translateY(-1px); }
 @media (max-width: 768px) {
   .stats-row { grid-template-columns: repeat(2, 1fr); }
   .nav-links { display: none; }

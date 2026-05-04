@@ -109,6 +109,7 @@ export default function AdminComplaints() {
               Customer Complaints
               {pendingCount > 0 && <span className="nav-badge">{pendingCount}</span>}
             </a>
+            <a href="/admin/profile" className={'nav-link admin' + (pathname === '/admin/profile' ? ' active' : '')}>Profile</a>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:'10px'}}>
             <button className="logout-btn" onClick={handleLogout}>
@@ -124,6 +125,7 @@ export default function AdminComplaints() {
             <a href="/admin" className="mobile-link" onClick={() => setMenuOpen(false)}>🏠 Admin Home</a>
             <a href="/admin/users" className="mobile-link" onClick={() => setMenuOpen(false)}>👥 Manage Users</a>
             <a href="/admin/complaints" className="mobile-link" onClick={() => setMenuOpen(false)}>📋 Complaints</a>
+            <a href="/admin/profile" className="mobile-link" onClick={() => setMenuOpen(false)}>👤 Profile</a>
           </div>
         )}
       </nav>
