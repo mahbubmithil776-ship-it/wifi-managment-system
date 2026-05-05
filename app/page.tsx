@@ -540,7 +540,7 @@ export default function HomePage() {
         .mobile-menu-btn{margin-top:12px;background:var(--green);color:#fff;padding:12px 0;border-radius:30px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;display:block}
 
         /* ── MOBILE BOTTOM NAV ── */
-        .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:rgba(255,255,255,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.4);padding:8px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(15,110,86,.06)}
+        .mobile-bottom-nav{display:none;position:fixed;bottom:10px;left:12px;right:12px;z-index:998;background:rgba(255,255,255,0.35);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.5);border-radius:28px;padding:10px 0 calc(10px + env(safe-area-inset-bottom));box-shadow:0 8px 32px rgba(15,110,86,.10),0 2px 8px rgba(0,0,0,.06)}
         .mbn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;padding:4px 0;transition:transform .2s}
         .mbn-item:active{transform:scale(.92)}
         .mbn-icon{font-size:20px;line-height:1}
@@ -839,7 +839,7 @@ export default function HomePage() {
           .hamburger{display:flex}
           .mobile-menu{display:flex}
           .mobile-bottom-nav{display:flex}
-          .float-wa{bottom:80px;right:16px;width:48px;height:48px;font-size:22px}
+          .float-wa{bottom:95px;right:16px;width:48px;height:48px;font-size:22px}
 
           /* Announce bar */
           .announce-bar{font-size:11px;padding:8px 5vw}
@@ -874,11 +874,11 @@ export default function HomePage() {
           .pkg-speed{font-size:38px}
           .pkg-card.featured{transform:none}
 
-          /* Business — 2 column on mobile, last one full width */
+          /* Business — 2 column on mobile, last one centered */
           .biz-grid{display:grid;grid-template-columns:1fr 1fr}
           .biz-carousel{display:none}
           .biz-speed{font-size:32px}
-          .biz-card:last-child{grid-column:1 / -1}
+          .biz-card:last-child{grid-column:1 / -1;max-width:calc(50% - 8px);margin:0 auto;width:100%}
 
           /* Status */
           .status-row{flex-direction:column;align-items:flex-start;gap:8px}
@@ -904,14 +904,16 @@ export default function HomePage() {
           .ref-card{padding:24px 16px}
           .ref-code{font-size:15px;letter-spacing:2px;padding:12px 10px}
 
-          /* Testimonials — 2 column on mobile */
+          /* Testimonials — 2 column on mobile, 3rd centered */
           .testi-grid{display:grid;grid-template-columns:1fr 1fr}
           .testi-carousel{display:none}
           .testi-card{padding:18px 14px}
+          .testi-card:last-child:nth-child(odd){grid-column:1 / -1;max-width:calc(50% - 8px);margin:0 auto}
 
-          /* Blog — 2 column on mobile */
+          /* Blog — 2 column on mobile, 3rd centered */
           .blog-grid{display:grid;grid-template-columns:1fr 1fr}
           .blog-carousel{display:none}
+          .blog-card:last-child:nth-child(odd){grid-column:1 / -1;max-width:calc(50% - 8px);margin:0 auto}
 
           /* FAQ */
           .faq-q{font-size:13px;padding:16px 0}
@@ -927,7 +929,7 @@ export default function HomePage() {
           .btn-wa,.btn-ghost{justify-content:center;text-align:center;width:100%}
 
           /* Footer */
-          .isp-footer{padding:32px 5vw 96px}
+          .isp-footer{padding:32px 5vw 120px}
           .footer-inner{flex-direction:column;align-items:flex-start;gap:12px}
           .footer-links{gap:16px}
         }
@@ -1322,7 +1324,7 @@ export default function HomePage() {
           <div className="footer-links">
             <Link href="/privacy-policy">Privacy Policy</Link>
             <Link href="/terms">Terms & Conditions</Link>
-            <a href="https://www.google.com/maps/search/Anodho+Bazar,+Dhaka,+Bangladesh" target="_blank" rel="noopener noreferrer">Sitemap</a>
+            <a href="https://www.google.com/maps/search/Anodho+Bazar,+Mawna,+Sreepur,+Gazipur,+Bangladesh" target="_blank" rel="noopener noreferrer">Sitemap</a>
             <a href="mailto:mdsalimahmed3331@gmail.com">Contact</a>
           </div>
         </div>
