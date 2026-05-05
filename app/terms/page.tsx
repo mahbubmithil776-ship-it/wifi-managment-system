@@ -201,7 +201,7 @@ export default function TermsAndConditions() {
           <div className="agree-sub">By registering with SanafISP, you agree to these Terms & Conditions.<br />Have a question before signing up? We're happy to help.</div>
           <div className="agree-btns">
             <Link href="/register" className="agree-btn-primary">✅ Register Now</Link>
-            <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="agree-btn-ghost">💬 Ask a Question</a>
+            <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="agree-btn-ghost">💬 Ask a Question</a>
           </div>
         </div>
       </div>

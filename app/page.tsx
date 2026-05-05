@@ -409,9 +409,9 @@ function MobileBottomNav() {
   const [active, setActive] = useState('home');
   const items = [
     { id: 'home', icon: '🏠', label: 'Home', href: '#' },
-    { id: 'packages', icon: '📦', label: 'Plans', href: '#packages' },
+    { id: 'packages', icon: '📦', label: 'Package', href: '#packages' },
+    { id: 'business', icon: '🏢', label: 'Business', href: '#business' },
     { id: 'status', icon: '📶', label: 'Network', href: '#status' },
-    { id: 'faq', icon: '❓', label: 'FAQ', href: '#faq' },
     { id: 'contact', icon: '📞', label: 'Contact', href: '#contact' },
   ];
   return (
@@ -540,7 +540,7 @@ export default function HomePage() {
         .mobile-menu-btn{margin-top:12px;background:var(--green);color:#fff;padding:12px 0;border-radius:30px;font-size:14px;font-weight:700;text-align:center;text-decoration:none;display:block}
 
         /* ── MOBILE BOTTOM NAV ── */
-        .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);border-top:1px solid #e0ede8;padding:8px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(15,110,86,.08)}
+        .mobile-bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:998;background:rgba(255,255,255,0.55);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid rgba(255,255,255,0.4);padding:8px 0 calc(8px + env(safe-area-inset-bottom));box-shadow:0 -4px 24px rgba(15,110,86,.06)}
         .mbn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;text-decoration:none;padding:4px 0;transition:transform .2s}
         .mbn-item:active{transform:scale(.92)}
         .mbn-icon{font-size:20px;line-height:1}
@@ -862,22 +862,23 @@ export default function HomePage() {
           .section-title{font-size:22px;letter-spacing:-.5px}
           .section-header{margin-bottom:32px}
 
-          /* Why us — carousel on mobile */
-          .why-grid{display:none}
-          .why-carousel{display:block}
-          .why-card{padding:24px 20px;height:100%}
+          /* Why us — 2 column on mobile */
+          .why-grid{display:grid;grid-template-columns:1fr 1fr}
+          .why-carousel{display:none}
+          .why-card{padding:20px 14px}
 
-          /* Packages — carousel on mobile */
-          .pkg-grid{display:none}
-          .pkg-carousel{display:block}
-          .pkg-card{padding:24px 18px}
-          .pkg-speed{font-size:44px}
+          /* Packages — 2 column on mobile */
+          .pkg-grid{display:grid;grid-template-columns:1fr 1fr}
+          .pkg-carousel{display:none}
+          .pkg-card{padding:20px 14px}
+          .pkg-speed{font-size:38px}
           .pkg-card.featured{transform:none}
 
-          /* Business — carousel on mobile */
-          .biz-grid{display:none}
-          .biz-carousel{display:block}
-          .biz-speed{font-size:36px}
+          /* Business — 2 column on mobile, last one full width */
+          .biz-grid{display:grid;grid-template-columns:1fr 1fr}
+          .biz-carousel{display:none}
+          .biz-speed{font-size:32px}
+          .biz-card:last-child{grid-column:1 / -1}
 
           /* Status */
           .status-row{flex-direction:column;align-items:flex-start;gap:8px}
@@ -903,13 +904,14 @@ export default function HomePage() {
           .ref-card{padding:24px 16px}
           .ref-code{font-size:15px;letter-spacing:2px;padding:12px 10px}
 
-          /* Testimonials — carousel on mobile */
-          .testi-grid{display:none}
-          .testi-carousel{display:block}
+          /* Testimonials — 2 column on mobile */
+          .testi-grid{display:grid;grid-template-columns:1fr 1fr}
+          .testi-carousel{display:none}
+          .testi-card{padding:18px 14px}
 
-          /* Blog — carousel on mobile */
-          .blog-grid{display:none}
-          .blog-carousel{display:block}
+          /* Blog — 2 column on mobile */
+          .blog-grid{display:grid;grid-template-columns:1fr 1fr}
+          .blog-carousel{display:none}
 
           /* FAQ */
           .faq-q{font-size:13px;padding:16px 0}

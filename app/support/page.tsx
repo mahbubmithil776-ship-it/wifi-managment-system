@@ -45,7 +45,7 @@ function SuccessScreen({ ticketId }: { ticketId: string }) {
         <div className="ticket-hint">Save this number — you may need it when contacting support</div>
       </div>
       <div className="success-actions">
-        <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="btn-wa-sm">
+        <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="btn-wa-sm">
           💬 Follow up on WhatsApp
         </a>
         <Link href="/" className="btn-outline-sm">← Back to Home</Link>
@@ -269,7 +269,7 @@ export default function SupportPage() {
         @media(max-width:768px){.support-layout{grid-template-columns:1fr}.sidebar{order:-1}.field-row{grid-template-columns:1fr}.type-grid{grid-template-columns:repeat(2,1fr)}.review-grid{grid-template-columns:1fr}.step-label{display:none}.step-line{width:40px}.nav-links a:not(.nav-btn){display:none}.form-card{padding:24px}}
       `}</style>
 
-      <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="float-wa">💬</a>
+      <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="float-wa">💬</a>
 
       <nav ref={navRef} className="isp-nav">
         <div className="nav-inner">
@@ -469,7 +469,7 @@ export default function SupportPage() {
                   <div className="sidebar-contact-item">
                     <div className="sidebar-icon" style={{ background: '#dcfce7' }}>💬</div>
                     <div><span className="sidebar-contact-label">WhatsApp</span>
-                      <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer" className="sidebar-contact-val">01723-133845</a></div>
+                      <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer" className="sidebar-contact-val">01605-952881</a></div>
                   </div>
                   <div className="sidebar-contact-item">
                     <div className="sidebar-icon" style={{ background: '#e6f1fb' }}>✉️</div>
@@ -488,7 +488,7 @@ export default function SupportPage() {
                   <p style={{ fontSize: 12, color: 'rgba(255,255,255,.7)', lineHeight: 1.6, marginBottom: 16 }}>
                     Message us directly for the fastest support response.
                   </p>
-                  <a href="https://wa.me/8801723133845" target="_blank" rel="noopener noreferrer"
+                  <a href="https://wa.me/8801605952881" target="_blank" rel="noopener noreferrer"
                     style={{ display: 'block', background: '#25D366', color: '#fff', padding: '11px 0', borderRadius: 30, fontSize: 13, fontWeight: 700, textAlign: 'center', textDecoration: 'none' }}>
                     💬 WhatsApp Us
                   </a>
