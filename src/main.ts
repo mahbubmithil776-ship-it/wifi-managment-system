@@ -8,6 +8,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:3000',
       'https://wifi-managment-system.vercel.app',
+      /^https:\/\/wifi-managment-system.*\.vercel\.app$/,
     ],
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
